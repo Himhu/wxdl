@@ -1,0 +1,4 @@
+<view class="station-switch" bindtap="onSwitchTap">
+  <view class="station-name">{{ currentSiteInfo.name }}</view>
+  <view class="station-icon">▼</view>
+</view>

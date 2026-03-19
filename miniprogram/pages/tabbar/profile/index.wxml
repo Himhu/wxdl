@@ -1,0 +1,67 @@
+<view class="profile-container">
+  <!-- 用户信息头部 -->
+  <view class="profile-header">
+    <view class="avatar-section">
+      <view class="avatar">
+        <image wx:if="{{ userInfo.avatar }}" class="avatar-img" src="{{ userInfo.avatar }}" mode="aspectFill" />
+        <text wx:else class="avatar-text">{{ userInfo.nickname ? userInfo.nickname[0] : '?' }}</text>
+      </view>
+      <view class="user-info">
+        <view class="username">{{ userInfo.nickname || '微信用户' }}</view>
+        <view class="user-role-tag {{ isAgent ? 'role-agent' : 'role-user' }}">
+          {{ isAgent ? userInfo.agentLevelName || '代理商' : '普通用户' }}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 普通用户提示卡片 -->
+  <view class="role-card" wx:if="{{ !isAgent }}">
+    <view class="role-card-left">
+      <view class="role-icon-box">
+        <text class="role-icon-text">⏳</text>
+      </view>
+      <view class="role-info">
+        <view class="role-title">暂未开通代理权限</view>
+        <view class="role-desc">请联系管理员开通代理商身份</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="menu-section">
+    <view class="menu-group">
+      <view
+        class="menu-item {{ item.agentOnly && !isAgent ? 'menu-item-disabled' : '' }}"
+        wx:for="{{ menuList }}"
+        wx:key="title"
+        data-url="{{ item.url }}"
+        data-agent-only="{{ item.agentOnly }}"
+        bindtap="onMenuTap"
+      >
+        <view class="menu-icon-box icon-box icon-box-md icon-box-brand">
+          <text class="menu-icon-text">{{ item.icon || '◆' }}</text>
+        </view>
+        <view class="menu-content">
+          <text class="menu-title">{{ item.title }}</text>
+          <text class="menu-lock" wx:if="{{ item.agentOnly && !isAgent }}">需代理权限</text>
+        </view>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Mock 测试按钮（开发阶段） -->
+  <view class="mock-section">
+    <view class="mock-title">开发测试</view>
+    <view class="mock-btns">
+      <button class="mock-btn" wx:if="{{ !isAgent }}" size="mini" bindtap="onMockPromote">模拟提升为代理</button>
+      <button class="mock-btn" wx:if="{{ isAgent }}" size="mini" bindtap="onMockDemote">模拟降为普通用户</button>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-section">
+    <button class="logout-btn" hover-class="logout-btn-hover" bindtap="onLogout">退出登录</button>
+  </view>
+</view>

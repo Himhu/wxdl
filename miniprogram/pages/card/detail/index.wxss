@@ -1,0 +1,72 @@
+/* ==================== 卡密详情页样式 ==================== */
+.detail-wrap {
+  padding: var(--spacing-md);
+  padding-bottom: 200rpx;
+}
+
+/* --- 虚拟礼品卡 --- */
+.virtual-card {
+  width: 100%;
+  aspect-ratio: 1.6;
+  background: var(--gradient-brand);
+  border-radius: 32rpx;
+  padding: var(--spacing-lg);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-brand);
+  margin-bottom: var(--spacing-xl);
+}
+
+.virtual-card-header {
+  align-items: flex-start;
+}
+
+.virtual-card-title {
+  color: var(--color-text-onbrand);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 2rpx;
+  opacity: 0.85;
+}
+
+.virtual-card-body {
+  margin-top: auto;
+}
+
+.virtual-card-key {
+  color: var(--color-text-onbrand);
+  font-size: var(--font-size-xl);
+  font-family: 'SF Mono', ui-monospace, 'Courier New', monospace;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 4rpx;
+  word-break: break-all;
+}
+
+/* --- 信息列表 --- */
+.info-list {
+  margin: 0;
+}
+
+.info-label {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+
+.info-value {
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* --- 底部操作 --- */
+.bottom-action {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md);
+  padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+  background: var(--color-bg-page);
+}

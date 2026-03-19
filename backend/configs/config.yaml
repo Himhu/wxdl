@@ -1,0 +1,38 @@
+app:
+  name: gin-backend
+  env: development
+
+server:
+  host: 0.0.0.0
+  port: 8080
+  read_timeout: 15
+  write_timeout: 15
+  idle_timeout: 60
+
+database:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: ""
+  name: agent_system
+  charset: utf8mb4
+  parse_time: true
+  loc: Local
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 3600
+
+jwt:
+  secret: your-super-secret-key
+  issuer: gin-backend
+  expire_hours: 72
+
+wechat:
+  app_id: your-wechat-app-id
+  app_secret: your-wechat-app-secret
+  api_base: https://api.weixin.qq.com
+  timeout_seconds: 5
+
+log:
+  level: info
+  encoding: console

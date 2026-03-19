@@ -1,0 +1,260 @@
+/* ==================== 个人中心样式 ==================== */
+.profile-container {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+}
+
+/* --- 用户信息头部 --- */
+.profile-header {
+  background: var(--color-bg-surface);
+  padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1rpx solid var(--color-border-light);
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  background: var(--gradient-brand);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-brand);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-text {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-onbrand);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.username {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.user-role-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  padding: 0 16rpx;
+  line-height: 40rpx;
+  border-radius: var(--radius-full);
+  align-self: flex-start;
+}
+
+.role-agent {
+  color: #067647;
+  background: #ECFDF3;
+  border: 1rpx solid #ABEFC6;
+}
+
+.role-user {
+  color: #8A94A6;
+  background: #F3F5F9;
+  border: 1rpx solid #E5E6EB;
+}
+
+/* --- 角色提示卡片 --- */
+.role-card {
+  margin: var(--spacing-md) var(--spacing-lg) 0;
+  background: linear-gradient(135deg, #F0F5FF 0%, #E8EEFF 100%);
+  border: 1rpx solid #C9DBFF;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+}
+
+.role-card-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.role-icon-box {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: var(--radius-md);
+  background: rgba(62, 106, 225, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.role-icon-text {
+  font-size: 36rpx;
+}
+
+.role-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.role-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: #2F57C8;
+}
+
+.role-desc {
+  font-size: var(--font-size-xs);
+  color: #5B7CF0;
+}
+
+/* --- 菜单列表 --- */
+.menu-section {
+  padding: var(--spacing-md) var(--spacing-lg) 0;
+}
+
+.menu-group {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1rpx solid var(--color-border-light);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-sm);
+  position: relative;
+  transition: background var(--transition-fast);
+}
+
+.menu-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 108rpx;
+  right: var(--spacing-md);
+  height: 1rpx;
+  background: var(--color-border-light);
+}
+
+.menu-item:active {
+  background: var(--color-bg-hover);
+}
+
+.menu-item-disabled {
+  opacity: 0.5;
+}
+
+.menu-item-disabled:active {
+  background: transparent;
+}
+
+.menu-icon-box {
+  flex-shrink: 0;
+}
+
+.menu-icon-text {
+  font-size: 32rpx;
+}
+
+.menu-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.menu-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+}
+
+.menu-lock {
+  font-size: 20rpx;
+  color: #8A94A6;
+  background: #F3F5F9;
+  border: 1rpx solid #E5E6EB;
+  border-radius: var(--radius-full);
+  padding: 0 12rpx;
+  line-height: 32rpx;
+}
+
+.menu-arrow {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-quaternary);
+  font-weight: 300;
+}
+
+/* --- Mock 测试区 --- */
+.mock-section {
+  margin: var(--spacing-xl) var(--spacing-lg) 0;
+  padding: var(--spacing-md);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1rpx dashed var(--color-border-default);
+}
+
+.mock-title {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--spacing-sm);
+  text-align: center;
+}
+
+.mock-btns {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.mock-btn {
+  font-size: var(--font-size-xs) !important;
+  color: var(--color-brand-primary) !important;
+  background: var(--color-brand-soft) !important;
+  border: 1rpx solid var(--color-brand-200) !important;
+}
+
+/* --- 退出登录 --- */
+.logout-section {
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.logout-btn {
+  width: 100%;
+  height: 88rpx;
+  background: var(--color-bg-surface);
+  color: var(--color-danger);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  border: 1rpx solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.logout-btn-hover {
+  background: var(--color-bg-hover);
+}

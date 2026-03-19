@@ -1,0 +1,12 @@
+<view class="skeleton" wx:if="{{ loading }}">
+  <view class="skeleton-item" wx:for="{{ rows }}" wx:key="index">
+    <view class="skeleton-row">
+      <view class="skeleton-line long"></view>
+      <view class="skeleton-line short"></view>
+    </view>
+    <view class="skeleton-row">
+      <view class="skeleton-line medium"></view>
+      <view class="skeleton-line medium"></view>
+    </view>
+  </view>
+</view>

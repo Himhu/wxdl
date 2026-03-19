@@ -1,0 +1,3 @@
+./agent_repository.go
+./card_repository.go
+./points_repository.go

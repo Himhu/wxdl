@@ -1,0 +1,50 @@
+// 全局配置
+module.exports = {
+  // API 基础地址（后续对接时修改）
+  API_BASE_URL: 'http://localhost:8080',
+
+  // 站点配置
+  SITES: [
+    {
+      id: 'site_a',
+      name: '站点A',
+      color: '#1677FF',
+      apiPrefix: '/site-a'
+    },
+    {
+      id: 'site_b',
+      name: '站点B',
+      color: '#00B578',
+      apiPrefix: '/site-b'
+    }
+  ],
+
+  // 卡密状态枚举
+  CARD_STATUS: {
+    UNUSED: { value: 0, label: '未使用', color: '#2F57C8', bgColor: '#EDF3FF', borderColor: '#C9DBFF' },
+    USED: { value: 1, label: '已使用', color: '#067647', bgColor: '#ECFDF3', borderColor: '#ABEFC6' },
+    DESTROYED: { value: 2, label: '已销毁', color: '#B42318', bgColor: '#FEF2F2', borderColor: '#FDA29B' },
+    EXPIRED: { value: 3, label: '已过期', color: '#8A94A6', bgColor: '#F3F5F9', borderColor: '#E5E6EB' }
+  },
+
+  // 充值状态枚举
+  RECHARGE_STATUS: {
+    PENDING: { value: 0, label: '审核中', color: '#B54708', bgColor: '#FFF7E8', borderColor: '#F7D79B' },
+    APPROVED: { value: 1, label: '已通过', color: '#067647', bgColor: '#ECFDF3', borderColor: '#ABEFC6' },
+    REJECTED: { value: -1, label: '已驳回', color: '#B42318', bgColor: '#FEF2F2', borderColor: '#FDA29B' }
+  },
+
+  // 用户角色枚举
+  USER_ROLE: {
+    USER: { value: 'user', label: '普通用户' },
+    AGENT: { value: 'agent', label: '代理商' }
+  },
+
+  // 代理层级枚举
+  AGENT_LEVEL: {
+    SUPER: { value: 0, label: '总代理' },
+    LEVEL_1: { value: 1, label: '一级代理' },
+    LEVEL_2: { value: 2, label: '二级代理' },
+    LEVEL_3: { value: 3, label: '三级代理' }
+  }
+}

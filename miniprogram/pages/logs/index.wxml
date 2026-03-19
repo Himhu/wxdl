@@ -1,0 +1,38 @@
+<view class="logs-container">
+  <!-- 头部 -->
+  <view class="page-header">
+    <text class="page-title">操作日志</text>
+  </view>
+
+  <!-- 骨架屏 -->
+  <skeleton loading="{{ loading && logs.length === 0 }}" count="5" />
+
+  <!-- 日志列表 Timeline -->
+  <view class="log-list" wx:if="{{ logs.length > 0 }}">
+    <view class="log-item" wx:for="{{ logs }}" wx:key="id">
+      <view class="timeline-node">
+        <view class="timeline-dot"></view>
+        <view class="timeline-line" wx:if="{{ index < logs.length - 1 }}"></view>
+      </view>
+      <view class="log-content">
+        <view class="log-action">{{ item.action }}</view>
+        <view class="log-detail" wx:if="{{ item.detail }}">{{ item.detail }}</view>
+        <view class="log-footer">
+          <text class="log-time">{{ item.createTime }}</text>
+          <text class="log-operator" wx:if="{{ item.operator }}">{{ item.operator }}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空态 -->
+  <view class="empty-container" wx:elif="{{ !loading }}">
+    <empty-state text="暂无日志" />
+  </view>
+
+  <!-- 分页加载 -->
+  <view class="loading-more" wx:if="{{ loading && logs.length > 0 }}">
+    <view class="loading-dot"></view>
+    <text class="loading-text">加载中</text>
+  </view>
+</view>

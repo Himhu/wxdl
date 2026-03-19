@@ -1,0 +1,174 @@
+/* ==================== 设计 Token 系统 ==================== */
+/* 风格：简约 · 大气 · 上档次 · 现代 */
+/* 参考：Apple Design + Arco Design */
+
+page {
+  /* ==================== 品牌色阶 ==================== */
+  --color-brand-50: #F3F7FF;
+  --color-brand-100: #E8F0FF;
+  --color-brand-200: #C9DBFF;
+  --color-brand-300: #9FBEFF;
+  --color-brand-400: #6F97F8;
+  --color-brand-500: #3E6AE1;
+  --color-brand-600: #2F57C8;
+  --color-brand-700: #2446A7;
+  --color-brand-800: #1C3885;
+  --color-brand-900: #162D69;
+
+  --color-brand-primary: #3E6AE1;
+  --color-brand-secondary: #3E6AE1;
+  --color-brand-dark: #2F57C8;
+  --color-brand-primary-hover: #2F57C8;
+  --color-brand-active: #2446A7;
+  --color-brand-light: #EDF3FF;
+  --color-brand-soft: #F3F7FF;
+
+  /* ==================== 背景色层级 ==================== */
+  --color-bg-page: #F3F5F9;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-card: rgba(255, 255, 255, 0.92);
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-hover: #F7F9FC;
+  --color-bg-active: #EEF2F7;
+  --color-bg-muted: #F7F9FC;
+  --color-bg-dark: #0F172A;
+  --color-bg-input: #F3F5F9;
+
+  /* ==================== 功能色 ==================== */
+  --color-success: #12B76A;
+  --color-success-soft: #ECFDF3;
+  --color-success-border: #ABEFC6;
+  --color-success-text: #067647;
+  --color-warning: #F59E0B;
+  --color-warning-soft: #FFF7E8;
+  --color-warning-border: #F7D79B;
+  --color-warning-text: #B54708;
+  --color-danger: #EF4444;
+  --color-danger-soft: #FEF2F2;
+  --color-danger-border: #FDA29B;
+  --color-danger-text: #B42318;
+  --color-info: #3E6AE1;
+  --color-info-soft: #EDF3FF;
+  --color-info-border: #C9DBFF;
+  --color-info-text: #2F57C8;
+
+  /* ==================== 文本颜色层级 ==================== */
+  --color-text-primary: #111827;
+  --color-text-secondary: #4B5563;
+  --color-text-tertiary: #8A94A6;
+  --color-text-quaternary: #B6BFCC;
+  --color-text-disabled: #C9CDD4;
+  --color-text-onbrand: #FFFFFF;
+
+  /* ==================== 边框色 ==================== */
+  --color-border-hairline: rgba(17, 24, 39, 0.06);
+  --color-border-light: rgba(17, 24, 39, 0.06);
+  --color-border-default: rgba(17, 24, 39, 0.10);
+  --color-border-strong: rgba(17, 24, 39, 0.16);
+
+  /* ==================== 状态背景色（兼容旧引用） ==================== */
+  --color-status-success-bg: #ECFDF3;
+  --color-status-success-text: #067647;
+  --color-status-warning-bg: #FFF7E8;
+  --color-status-warning-text: #B54708;
+  --color-status-danger-bg: #FEF2F2;
+  --color-status-danger-text: #B42318;
+  --color-status-info-bg: #EDF3FF;
+  --color-status-default-bg: #F3F5F9;
+
+  /* ==================== 渐变 ==================== */
+  --gradient-brand: linear-gradient(135deg, #5B7CF0 0%, #3E6AE1 55%, #2446A7 100%);
+  --gradient-brand-soft: linear-gradient(180deg, #F7FAFF 0%, #EEF4FF 100%);
+  --gradient-hero: linear-gradient(180deg, #F8FBFF 0%, #F2F5FB 45%, #F3F5F9 100%);
+  --gradient-success: linear-gradient(135deg, #34D399 0%, #12B76A 100%);
+
+  /* ==================== 阴影系统 ==================== */
+  --shadow-sm: 0 6rpx 20rpx rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 12rpx 36rpx rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20rpx 56rpx rgba(15, 23, 42, 0.12);
+  --shadow-brand: 0 12rpx 28rpx rgba(62, 106, 225, 0.22);
+  --shadow-inner: inset 0 1rpx 0 rgba(255, 255, 255, 0.72);
+  --shadow-glow: 0 0 24rpx rgba(62, 106, 225, 0.15);
+
+  /* ==================== 字体大小 ==================== */
+  --font-size-xs: 22rpx;
+  --font-size-sm: 24rpx;
+  --font-size-md: 28rpx;
+  --font-size-lg: 32rpx;
+  --font-size-xl: 40rpx;
+  --font-size-2xl: 52rpx;
+
+  /* ==================== 字重 ==================== */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* ==================== 行高 ==================== */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* ==================== 间距系统 ==================== */
+  --spacing-2xs: 8rpx;
+  --spacing-xs: 12rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 40rpx;
+  --spacing-2xl: 48rpx;
+  --spacing-3xl: 64rpx;
+  --spacing-4xl: 80rpx;
+
+  /* ==================== 圆角系统 ==================== */
+  --radius-xs: 12rpx;
+  --radius-sm: 16rpx;
+  --radius-md: 20rpx;
+  --radius-lg: 28rpx;
+  --radius-xl: 36rpx;
+  --radius-2xl: 44rpx;
+  --radius-full: 9999rpx;
+
+  /* ==================== 过渡动画 ==================== */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ==================== 兼容旧变量（别名） ==================== */
+  --primary-color-a: var(--color-brand-primary);
+  --primary-color-b: var(--color-success);
+  --success-color: var(--color-success);
+  --warning-color: var(--color-warning);
+  --danger-color: var(--color-danger);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-tertiary: var(--color-text-tertiary);
+  --border-color: var(--color-border-default);
+  --bg-color: var(--color-bg-page);
+}
+
+
+/* ==================== 字体工具类 ==================== */
+.text-2xl { font-size: var(--font-size-2xl); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-md { font-size: var(--font-size-md); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-xs { font-size: var(--font-size-xs); }
+
+.font-regular { font-weight: var(--font-weight-regular); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+
+/* ==================== 圆角工具类 ==================== */
+.rounded-xs { border-radius: var(--radius-xs); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* ==================== 阴影工具类 ==================== */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-none { box-shadow: none; }

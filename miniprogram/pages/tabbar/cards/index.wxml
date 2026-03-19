@@ -1,0 +1,46 @@
+<view class="cards-container">
+  <!-- 头部 -->
+  <view class="page-header">
+    <view class="header-content">
+      <text class="page-title">卡密管理</text>
+      <text class="page-count">{{ cardList.length }} 张</text>
+    </view>
+  </view>
+
+  <!-- 骨架屏 -->
+  <skeleton loading="{{ loading && cardList.length === 0 }}" count="4" />
+
+  <!-- 卡密列表 Inset List -->
+  <view class="card-list" wx:if="{{ cardList.length > 0 }}">
+    <view
+      class="card-item"
+      wx:for="{{ cardList }}"
+      wx:key="id"
+      data-id="{{ item.id }}"
+      bindtap="onCardDetail"
+    >
+      <view class="card-main">
+        <view class="card-key-row">
+          <text class="card-key">{{ item.cardKey }}</text>
+          <status-tag type="card" status="{{ item.status }}" />
+        </view>
+        <view class="card-meta">
+          <text class="meta-text">创建 {{ item.createTime }}</text>
+          <text class="meta-text" wx:if="{{ item.usedTime }}">· 使用 {{ item.usedTime }}</text>
+        </view>
+      </view>
+      <text class="card-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 空态 -->
+  <view class="empty-container" wx:elif="{{ !loading }}">
+    <empty-state text="暂无卡密数据" />
+  </view>
+
+  <!-- 分页加载 -->
+  <view class="loading-more" wx:if="{{ loading && cardList.length > 0 }}">
+    <view class="loading-dot"></view>
+    <text class="loading-text">加载中</text>
+  </view>
+</view>

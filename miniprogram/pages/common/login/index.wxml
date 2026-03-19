@@ -1,0 +1,56 @@
+<view class="login-page">
+  <!-- 主内容区 -->
+  <view class="login-main">
+    <!-- 头像选择 -->
+    <view class="logo-wrap">
+      <button
+        class="avatar-btn"
+        open-type="chooseAvatar"
+        bind:chooseavatar="onChooseAvatar"
+      >
+        <image
+          class="avatar-img"
+          src="{{ avatarUrl || '' }}"
+          mode="aspectFill"
+          wx:if="{{ avatarUrl }}"
+        />
+        <view class="avatar-placeholder" wx:else>
+          <text class="avatar-placeholder-text">+</text>
+        </view>
+      </button>
+      <view class="avatar-tip">点击选择头像</view>
+    </view>
+
+    <view class="title">欢迎登录</view>
+    <view class="subtitle">代理商管理系统</view>
+
+    <!-- 昵称输入 -->
+    <view class="nickname-wrap">
+      <input
+        type="nickname"
+        class="nickname-input"
+        placeholder="点击获取微信昵称"
+        value="{{ nickname }}"
+        bindblur="onNicknameBlur"
+        bindinput="onNicknameInput"
+      />
+    </view>
+
+    <!-- 登录按钮 -->
+    <button
+      class="wechat-btn"
+      hover-class="wechat-btn-hover"
+      bindtap="onWechatLogin"
+      loading="{{ wechatLoading }}"
+    >
+      微信登录
+    </button>
+
+    <view class="hint">登录后由管理员开通代理权限</view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="footer">
+    <text class="footer-text">登录即表示同意《用户协议》和《隐私政策》</text>
+  </view>
+</view>

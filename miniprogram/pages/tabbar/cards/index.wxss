@@ -1,0 +1,137 @@
+/* ==================== 卡密管理页样式 ==================== */
+.cards-container {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+  padding-bottom: var(--spacing-3xl);
+}
+
+/* --- 头部 --- */
+.page-header {
+  padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-md);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.page-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.page-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* --- Inset List 卡密列表 --- */
+.card-list {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  margin: 0 var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1rpx solid var(--color-border-light);
+  overflow: hidden;
+}
+
+.card-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-md);
+  position: relative;
+  transition: background var(--transition-fast);
+}
+
+.card-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  height: 1rpx;
+  background: var(--color-border-light);
+}
+
+.card-item:active {
+  background: var(--color-bg-hover);
+}
+
+.card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-key-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2xs);
+}
+
+.card-key {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  font-family: 'SF Mono', ui-monospace, 'Courier New', monospace;
+  letter-spacing: 0.5rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 420rpx;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-wrap: wrap;
+}
+
+.meta-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.card-arrow {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-quaternary);
+  font-weight: 300;
+  margin-left: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+/* --- 空态 --- */
+.empty-container {
+  padding-top: 120rpx;
+}
+
+/* --- 分页加载 --- */
+.loading-more {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xl);
+}
+
+.loading-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--color-brand-primary);
+  opacity: 0.6;
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.loading-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(0.8); opacity: 0.4; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}

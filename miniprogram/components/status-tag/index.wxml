@@ -1,0 +1,3 @@
+<view class="status-tag" style="color: {{ statusInfo.color }}; background: {{ statusInfo.bgColor }}; border-color: {{ statusInfo.borderColor || 'transparent' }};">
+  {{ statusInfo.label }}
+</view>

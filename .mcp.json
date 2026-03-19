@@ -1,0 +1,10 @@
+{
+  "codex": {
+    "command": "uvx",
+    "args": ["--from", "git+https://github.com/GuDaStudio/codexmcp.git", "codexmcp"]
+  },
+  "gemini": {
+    "command": "uvx",
+    "args": ["--from", "git+https://github.com/GuDaStudio/geminimcp.git", "geminimcp"]
+  }
+}

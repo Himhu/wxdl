@@ -1,0 +1,42 @@
+<view class="page-container">
+  <!-- 骨架屏 -->
+  <skeleton loading="{{ loading }}" count="5" />
+
+  <block wx:if="{{ !loading }}">
+    <!-- 记录列表 -->
+    <view class="record-list" wx:if="{{ records.length > 0 }}">
+      <view
+        class="record-item"
+        wx:for="{{ records }}"
+        wx:key="id"
+        hover-class="record-item--active"
+        hover-stay-time="80"
+      >
+        <view class="record-top flex-between">
+          <view class="amount-wrap">
+            <text class="amount-symbol">¥</text>
+            <text class="amount-value num-font">{{ item.amount }}</text>
+          </view>
+          <status-tag type="recharge" status="{{ item.status }}" />
+        </view>
+        <view class="record-bottom">
+          <text class="record-time">{{ item.createTime }}</text>
+          <text class="record-remark">{{ item.remark }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空态 -->
+    <empty-state
+      wx:if="{{ !records.length }}"
+      icon="¥"
+      text="暂无充值记录"
+      hint="充值后记录将显示在这里"
+    />
+
+    <!-- 分页加载 -->
+    <view class="load-more" wx:if="{{ hasMore }}">
+      <text class="load-more__text">加载中...</text>
+    </view>
+  </block>
+</view>

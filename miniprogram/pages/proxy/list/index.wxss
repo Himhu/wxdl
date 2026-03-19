@@ -1,0 +1,154 @@
+/* ==================== 下级代理列表页样式 ==================== */
+.page-container {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+  padding: var(--spacing-md) 0 var(--spacing-3xl);
+}
+
+/* --- Inset List 代理列表 --- */
+.proxy-list {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  margin: 0 var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1rpx solid var(--color-border-light);
+  overflow: hidden;
+}
+
+.proxy-item {
+  padding: var(--spacing-md);
+  position: relative;
+  transition: background var(--transition-fast);
+}
+
+.proxy-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  height: 1rpx;
+  background: var(--color-border-light);
+}
+
+.proxy-item--active {
+  background: var(--color-bg-hover);
+}
+
+/* --- 头部：头像 + 信息 --- */
+.proxy-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: var(--radius-full);
+  background: var(--gradient-brand);
+  color: var(--color-text-onbrand);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.proxy-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.proxy-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* --- 等级标签 --- */
+.level-tag {
+  padding: 2rpx var(--spacing-xs);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 36rpx;
+}
+
+.level-0 {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
+  border: 1rpx solid var(--color-danger-border);
+}
+
+.level-1 {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  border: 1rpx solid var(--color-brand-200);
+}
+
+.level-2 {
+  background: var(--color-warning-soft);
+  color: var(--color-warning-text);
+  border: 1rpx solid var(--color-warning-border);
+}
+
+.level-3 {
+  background: var(--color-success-soft);
+  color: var(--color-success-text);
+  border: 1rpx solid var(--color-success-border);
+}
+
+/* --- 指标面板 --- */
+.metrics {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-page);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) 0;
+}
+
+.metric-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.metric-divider {
+  width: 1rpx;
+  height: 48rpx;
+  background: var(--color-border-light);
+  flex-shrink: 0;
+}
+
+.metric-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.metric-value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+/* --- 分页加载 --- */
+.load-more {
+  text-align: center;
+  padding: var(--spacing-xl) 0 var(--spacing-lg);
+}
+
+.load-more__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-quaternary);
+}

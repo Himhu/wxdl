@@ -1,0 +1,67 @@
+/* ==================== 图标系统 ==================== */
+/* 临时方案：使用精选 Unicode 符号 */
+/* 后续可替换为 iconfont.cn 生成的字体文件 */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.icon-sm { width: 32rpx; height: 32rpx; font-size: 28rpx; }
+.icon-md { width: 40rpx; height: 40rpx; font-size: 36rpx; }
+.icon-lg { width: 48rpx; height: 48rpx; font-size: 44rpx; }
+.icon-xl { width: 64rpx; height: 64rpx; font-size: 56rpx; }
+
+/* 图标容器（用于快捷操作等场景） */
+.icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+
+.icon-box-sm {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.icon-box-md {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.icon-box-lg {
+  width: 96rpx;
+  height: 96rpx;
+}
+
+/* 图标容器配色 */
+.icon-box-brand {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+}
+
+.icon-box-success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.icon-box-warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.icon-box-danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.icon-box-muted {
+  background: var(--color-bg-muted);
+  color: var(--color-text-tertiary);
+}

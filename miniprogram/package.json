@@ -1,0 +1,9 @@
+{
+  "name": "proxy-management-miniprogram",
+  "version": "1.0.0",
+  "description": "代理站管理微信小程序",
+  "dependencies": {
+    "mobx-miniprogram": "^4.13.2",
+    "mobx-miniprogram-bindings": "^2.1.5"
+  }
+}

@@ -1,0 +1,54 @@
+<view class="page-container">
+  <!-- 骨架屏 -->
+  <skeleton loading="{{ loading }}" count="4" />
+
+  <block wx:if="{{ !loading }}">
+    <!-- 代理列表 -->
+    <view class="proxy-list" wx:if="{{ proxyList.length > 0 }}">
+      <view
+        class="proxy-item"
+        wx:for="{{ proxyList }}"
+        wx:key="id"
+        hover-class="proxy-item--active"
+        hover-stay-time="80"
+      >
+        <!-- 头部：头像 + 名称 + 等级 -->
+        <view class="proxy-header">
+          <view class="avatar">{{ item.name[0] || '?' }}</view>
+          <view class="proxy-info">
+            <view class="name-row">
+              <text class="proxy-name">{{ item.name }}</text>
+              <view class="level-tag level-{{ item.level }}">{{ item.levelName }}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 指标面板 -->
+        <view class="metrics">
+          <view class="metric-cell">
+            <text class="metric-label">卡密数</text>
+            <text class="metric-value num-font">{{ item.totalCards }}</text>
+          </view>
+          <view class="metric-divider"></view>
+          <view class="metric-cell">
+            <text class="metric-label">积分余额</text>
+            <text class="metric-value num-font">{{ item.balance }}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空态 -->
+    <empty-state
+      wx:if="{{ !proxyList.length }}"
+      icon="○"
+      text="暂无下级代理"
+      hint="发展下级代理后将显示在这里"
+    />
+
+    <!-- 分页加载 -->
+    <view class="load-more" wx:if="{{ hasMore }}">
+      <text class="load-more__text">加载中...</text>
+    </view>
+  </block>
+</view>

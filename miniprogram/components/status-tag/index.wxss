@@ -1,0 +1,12 @@
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40rpx;
+  padding: 0 16rpx;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-full);
+  line-height: 40rpx;
+  letter-spacing: 0.5rpx;
+  border: 1rpx solid transparent;
+}

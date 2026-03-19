@@ -1,0 +1,116 @@
+/* ==================== 充值积分页样式 ==================== */
+.recharge-wrap {
+  padding: var(--spacing-md);
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+}
+
+/* --- 余额展示 --- */
+.balance-card {
+  padding: var(--spacing-xl) var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.balance-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.balance-value {
+  display: flex;
+  align-items: baseline;
+  color: var(--color-text-primary);
+}
+
+.balance-symbol {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  margin-right: 4rpx;
+}
+
+.balance-num {
+  font-size: var(--font-size-2xl);
+}
+
+/* --- 面值选项 --- */
+.amount-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-title {
+  display: block;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+.amount-item {
+  background: var(--color-bg-surface);
+  border: 2rpx solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md) 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.amount-item.selected {
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand-primary);
+}
+
+.amount-num {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+}
+
+.amount-item.selected .amount-num,
+.amount-item.selected .amount-unit {
+  color: var(--color-brand-primary);
+}
+
+.amount-unit {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-left: 4rpx;
+}
+
+/* --- 自定义金额 --- */
+.custom-card {
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.custom-label {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  margin-right: var(--spacing-md);
+}
+
+.custom-input {
+  flex: 1;
+  text-align: right;
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+}
+
+/* --- 底部悬浮按钮 --- */
+.fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md);
+  padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+  background: var(--color-bg-page);
+  z-index: 100;
+}

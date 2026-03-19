@@ -1,0 +1,47 @@
+<view class="page-container">
+  <view class="recharge-wrap">
+    <!-- 余额展示 -->
+    <view class="card balance-card flex-col flex-center">
+      <text class="balance-label">当前余额</text>
+      <view class="balance-value">
+        <text class="balance-symbol">¥</text>
+        <text class="num-font balance-num">{{balance}}</text>
+      </view>
+    </view>
+
+    <!-- 面值选项 -->
+    <view class="amount-section">
+      <text class="section-title">充值金额</text>
+      <view class="amount-grid">
+        <view
+          class="amount-item {{selectedIndex === index ? 'selected' : ''}}"
+          wx:for="{{amounts}}"
+          wx:key="*this"
+          data-index="{{index}}"
+          bindtap="onSelectAmount"
+        >
+          <text class="amount-num num-font">{{item}}</text>
+          <text class="amount-unit">积分</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 自定义金额 -->
+    <view class="card custom-card flex flex-between">
+      <text class="custom-label">自定义金额</text>
+      <input
+        class="custom-input"
+        type="digit"
+        placeholder="请输入金额"
+        placeholder-class="input-placeholder"
+        value="{{customAmount}}"
+        bindinput="onCustomInput"
+      />
+    </view>
+  </view>
+
+  <!-- 底部悬浮按钮 -->
+  <view class="fixed-bottom">
+    <button class="btn btn-primary" bindtap="onSubmit">立即充值</button>
+  </view>
+</view>

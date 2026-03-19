@@ -1,0 +1,102 @@
+/* ==================== 充值记录页样式 ==================== */
+.page-container {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+  padding: var(--spacing-md) 0 var(--spacing-3xl);
+}
+
+/* --- Inset List 记录列表 --- */
+.record-list {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  margin: 0 var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1rpx solid var(--color-border-light);
+  overflow: hidden;
+}
+
+.record-item {
+  padding: var(--spacing-md);
+  position: relative;
+  transition: background var(--transition-fast);
+}
+
+.record-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  height: 1rpx;
+  background: var(--color-border-light);
+}
+
+.record-item--active {
+  background: var(--color-bg-hover);
+}
+
+/* --- 金额行 --- */
+.record-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.amount-wrap {
+  display: flex;
+  align-items: baseline;
+  color: var(--color-text-primary);
+}
+
+.amount-symbol {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  margin-right: var(--spacing-2xs);
+}
+
+.amount-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* --- 时间 + 备注行 --- */
+.record-bottom {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.record-time,
+.record-remark {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.record-remark {
+  position: relative;
+  padding-left: var(--spacing-sm);
+}
+
+.record-remark::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4rpx;
+  height: 4rpx;
+  border-radius: 50%;
+  background: var(--color-text-quaternary);
+}
+
+/* --- 分页加载 --- */
+.load-more {
+  text-align: center;
+  padding: var(--spacing-xl) 0 var(--spacing-lg);
+}
+
+.load-more__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-quaternary);
+}

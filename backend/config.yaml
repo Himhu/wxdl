@@ -1,0 +1,24 @@
+server:
+  port: 8080
+  mode: debug
+
+database:
+  host: localhost
+  port: 3306
+  user: root
+  password:
+  name: agent_system
+  max_idle_conns: 10
+  max_open_conns: 100
+
+jwt:
+  secret: dev-secret-key-change-in-production-2024
+  expire_hours: 24
+
+wechat:
+  appid: wx05ec688e9aa28114
+  secret: 381147b8b079a1f0adf9eacdb834be74
+
+log:
+  level: info
+  file: logs/app.log

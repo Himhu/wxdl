@@ -1,0 +1,7 @@
+<view class="empty-state">
+  <view class="empty-icon-box">
+    <text class="empty-icon-text">{{ icon || '○' }}</text>
+  </view>
+  <view class="empty-text">{{ text }}</view>
+  <view class="empty-hint" wx:if="{{ hint }}">{{ hint }}</view>
+</view>

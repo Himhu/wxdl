@@ -1,0 +1,27 @@
+<view class="page-container">
+  <view class="detail-wrap">
+    <!-- 虚拟礼品卡 -->
+    <view class="virtual-card">
+      <view class="virtual-card-header flex flex-between">
+        <text class="virtual-card-title">GIFT CARD</text>
+        <status-tag type="card" status="{{cardInfo.status}}" />
+      </view>
+      <view class="virtual-card-body">
+        <text class="virtual-card-key">{{cardInfo.cardKey}}</text>
+      </view>
+    </view>
+
+    <!-- 信息列表 -->
+    <view class="inset-list info-list">
+      <view class="inset-list-item flex flex-between" wx:for="{{infoList}}" wx:key="label">
+        <text class="info-label">{{item.label}}</text>
+        <text class="info-value">{{item.value}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="bottom-action">
+    <button class="btn btn-primary" bindtap="onCopyKey">复制卡密</button>
+  </view>
+</view>
