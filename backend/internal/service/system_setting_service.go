@@ -37,6 +37,9 @@ type SystemSettingService interface {
 	UpdateWeChatSettings(ctx context.Context, input UpdateWeChatSettingsInput) (*WeChatSettingView, error)
 	GetObjectStorageSettings(ctx context.Context) (*ObjectStorageSettingView, error)
 	UpdateObjectStorageSettings(ctx context.Context, input UpdateObjectStorageSettingsInput) (*ObjectStorageSettingView, error)
+	GetRedemptionSettings(ctx context.Context) (*RedemptionSettingView, error)
+	UpdateRedemptionSettings(ctx context.Context, input UpdateRedemptionSettingsInput) (*RedemptionSettingView, error)
+	GetRedemptionConfig(ctx context.Context) (*RedemptionConfig, error)
 }
 
 type systemSettingService struct {
@@ -372,5 +375,159 @@ func (s *systemSettingService) UpdateObjectStorageSettings(ctx context.Context, 
 	}
 
 	return s.GetObjectStorageSettings(ctx)
+}
+
+// RedemptionSettingView 兑换码站点配置视图
+type RedemptionSettingView struct {
+	BaseURL                string    `json:"baseUrl"`
+	AdminAccessTokenMasked string    `json:"adminAccessTokenMasked"`
+	AdminUserID            string    `json:"adminUserId"`
+	PriceRules             string    `json:"priceRules"`
+	UpdatedAt              time.Time `json:"updatedAt"`
+}
+
+// UpdateRedemptionSettingsInput 更新兑换码站点配置输入
+type UpdateRedemptionSettingsInput struct {
+	BaseURL          string
+	AdminAccessToken string
+	AdminUserID      string
+	PriceRules       string
+	ChangeNote       string
+	ChangedBy        uint
+	ChangedIP        string
+}
+
+// RedemptionConfig 兑换码站点运行时配置（含解密后的 token）
+type RedemptionConfig struct {
+	BaseURL          string
+	AdminAccessToken string
+	AdminUserID      string
+	PriceRules       string
+}
+
+func (s *systemSettingService) GetRedemptionSettings(ctx context.Context) (*RedemptionSettingView, error) {
+	settings, err := s.repo.ListByCategory(ctx, "redemption")
+	if err != nil {
+		return nil, err
+	}
+
+	view := &RedemptionSettingView{UpdatedAt: time.Now()}
+	for _, setting := range settings {
+		switch setting.SettingKey {
+		case "base_url":
+			if setting.ValuePlain != nil {
+				view.BaseURL = *setting.ValuePlain
+			}
+		case "admin_user_id":
+			if setting.ValuePlain != nil {
+				view.AdminUserID = *setting.ValuePlain
+			}
+		case "admin_access_token":
+			if setting.ValueMasked != nil {
+				view.AdminAccessTokenMasked = *setting.ValueMasked
+			}
+		case "price_rules":
+			if setting.ValuePlain != nil {
+				view.PriceRules = *setting.ValuePlain
+			}
+		}
+		if setting.UpdatedAt.After(view.UpdatedAt) || view.UpdatedAt.After(time.Now()) {
+			view.UpdatedAt = setting.UpdatedAt
+		}
+	}
+	return view, nil
+}
+
+func (s *systemSettingService) UpdateRedemptionSettings(ctx context.Context, input UpdateRedemptionSettingsInput) (*RedemptionSettingView, error) {
+	now := time.Now()
+	plainFields := map[string]struct{ value, display, desc string }{
+		"base_url":      {input.BaseURL, "站点地址", "兑换码站点 BaseURL"},
+		"admin_user_id": {input.AdminUserID, "管理员用户ID", "外部站点管理员 UserID"},
+		"price_rules":   {input.PriceRules, "面值规则", "兑换码面值和成本价规则(JSON)"},
+	}
+
+	if err := s.txManager.WithinTx(ctx, func(repos repository.TxRepositories) error {
+		repo := repos.SystemSetting()
+		for key, info := range plainFields {
+			v := info.value
+			setting := &model.SystemSetting{
+				Category: "redemption", SettingKey: key,
+				DisplayName: info.display, ValueType: "string",
+				IsSecret: false, ValuePlain: &v,
+				Source: "database", Status: 1, Description: info.desc,
+				UpdatedBy: &input.ChangedBy, PublishedAt: &now,
+			}
+			revision := &model.SystemSettingRevision{
+				Category: "redemption", SettingKey: key, Operation: "update",
+				NewValueMasked: &v, ChangeNote: input.ChangeNote,
+				ChangedBy: &input.ChangedBy, ChangedIP: input.ChangedIP,
+			}
+			if err := upsertSystemSettingWithRevision(ctx, repo, setting, revision); err != nil {
+				return err
+			}
+		}
+
+		if input.AdminAccessToken != "" {
+			ct, masked, checksum, keyVer, err := s.cipher.Encrypt(input.AdminAccessToken, "redemption.admin_access_token")
+			if err != nil {
+				return fmt.Errorf("encrypt admin_access_token: %w", err)
+			}
+			setting := &model.SystemSetting{
+				Category: "redemption", SettingKey: "admin_access_token",
+				DisplayName: "AccessToken", ValueType: "secret",
+				IsSecret: true, ValueCiphertext: &ct, ValueMasked: &masked,
+				Checksum: &checksum, KeyVersion: &keyVer,
+				Source: "database", Status: 1, Description: "外部站点管理员 AccessToken",
+				UpdatedBy: &input.ChangedBy, PublishedAt: &now,
+			}
+			revision := &model.SystemSettingRevision{
+				Category: "redemption", SettingKey: "admin_access_token", Operation: "update",
+				NewValueMasked: &masked, NewChecksum: &checksum,
+				ChangeNote: input.ChangeNote, ChangedBy: &input.ChangedBy, ChangedIP: input.ChangedIP,
+			}
+			if err := upsertSystemSettingWithRevision(ctx, repo, setting, revision); err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("update redemption settings: %w", err)
+	}
+
+	return s.GetRedemptionSettings(ctx)
+}
+
+func (s *systemSettingService) GetRedemptionConfig(ctx context.Context) (*RedemptionConfig, error) {
+	settings, err := s.repo.ListByCategory(ctx, "redemption")
+	if err != nil {
+		return nil, err
+	}
+
+	cfg := &RedemptionConfig{}
+	for _, setting := range settings {
+		switch setting.SettingKey {
+		case "base_url":
+			if setting.ValuePlain != nil {
+				cfg.BaseURL = *setting.ValuePlain
+			}
+		case "admin_user_id":
+			if setting.ValuePlain != nil {
+				cfg.AdminUserID = *setting.ValuePlain
+			}
+		case "admin_access_token":
+			if setting.ValueCiphertext != nil && *setting.ValueCiphertext != "" {
+				plaintext, err := s.cipher.Decrypt(*setting.ValueCiphertext, "redemption.admin_access_token")
+				if err != nil {
+					return nil, fmt.Errorf("decrypt admin_access_token: %w", err)
+				}
+				cfg.AdminAccessToken = plaintext
+			}
+		case "price_rules":
+			if setting.ValuePlain != nil {
+				cfg.PriceRules = *setting.ValuePlain
+			}
+		}
+	}
+	return cfg, nil
 }
 

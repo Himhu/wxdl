@@ -1,38 +1,40 @@
-import request from './request'
-
-/**
- * 卡密相关 API
- */
+const request = require('./request')
 
 // 查询卡密列表
-export function getCards(params) {
-  return request({
-    url: '/cards',
-    method: 'GET',
-    params
-  })
+function getCards(params) {
+  return request.get('/api/v1/cards', params)
 }
 
 // 查询卡密详情
-export function getCardDetail(id) {
-  return request({
-    url: `/cards/${id}`,
-    method: 'GET'
-  })
+function getCardDetail(id) {
+  return request.get('/api/v1/cards/' + id)
 }
 
 // 销毁卡密
-export function destroyCard(id) {
-  return request({
-    url: `/cards/${id}`,
-    method: 'DELETE'
-  })
+function destroyCard(id) {
+  return request.del('/api/v1/cards/' + id)
 }
 
 // 卡密统计
-export function getCardStats() {
-  return request({
-    url: '/cards/stats',
-    method: 'GET'
-  })
+function getCardStats() {
+  return request.get('/api/v1/cards/stats')
+}
+
+// 获取创建兑换码选项（面值列表）
+function getCreateOptions() {
+  return request.get('/api/v1/cards/create-options')
+}
+
+// 创建兑换码
+function createCard(data) {
+  return request.post('/api/v1/cards', data)
+}
+
+module.exports = {
+  getCards,
+  getCardDetail,
+  destroyCard,
+  getCardStats,
+  getCreateOptions,
+  createCard
 }

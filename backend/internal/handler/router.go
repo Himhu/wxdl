@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *CardHandler, agentHandler *AgentHandler, pointsHandler *PointsHandler, auditHandler *AuditHandler, healthHandler *HealthHandler, adminAuthHandler *AdminAuthHandler, adminAgentHandler *AdminAgentHandler, adminMiniProgramConfigHandler *AdminMiniProgramConfigHandler, miniProgramConfigHandler *MiniProgramConfigHandler, adminSystemSettingHandler *AdminSystemSettingHandler, userHandler *UserHandler, dashboardHandler *DashboardHandler, jwtConfig config.JWTConfig, adminRepo middleware.AdminPermissionReader) {
+func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *CardHandler, agentHandler *AgentHandler, pointsHandler *PointsHandler, auditHandler *AuditHandler, healthHandler *HealthHandler, adminAuthHandler *AdminAuthHandler, adminAgentHandler *AdminAgentHandler, adminCardHandler *AdminCardHandler, agentCardHandler *AgentCardHandler, adminMiniProgramConfigHandler *AdminMiniProgramConfigHandler, miniProgramConfigHandler *MiniProgramConfigHandler, adminSystemSettingHandler *AdminSystemSettingHandler, userHandler *UserHandler, dashboardHandler *DashboardHandler, jwtConfig config.JWTConfig, adminRepo middleware.AdminPermissionReader) {
 	register := func(group *gin.RouterGroup) {
 		group.GET("/health", healthHandler.Ping)
 
@@ -24,6 +24,7 @@ func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *C
 
 		cardGroup := group.Group("/cards")
 		cardGroup.Use(middleware.JWTAgentMiddleware(jwtConfig))
+		cardGroup.POST("", agentCardHandler.Create)
 		cardGroup.GET("", cardHandler.List)
 		cardGroup.GET("/stats", cardHandler.Stats)
 		cardGroup.GET("/:id", cardHandler.Detail)
@@ -98,6 +99,17 @@ func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *C
 		systemSettingGroup.PUT("/object-storage",
 			middleware.RequireAdminPermission(adminRepo, model.PermissionSystemAll, model.PermissionAll),
 			adminSystemSettingHandler.UpdateObjectStorageSettings)
+		systemSettingGroup.GET("/redemption",
+			middleware.RequireAdminPermission(adminRepo, model.PermissionSystemAll, model.PermissionAll),
+			adminSystemSettingHandler.GetRedemptionSettings)
+		systemSettingGroup.PUT("/redemption",
+			middleware.RequireAdminPermission(adminRepo, model.PermissionSystemAll, model.PermissionAll),
+			adminSystemSettingHandler.UpdateRedemptionSettings)
+
+		// 管理端卡密管理
+		adminCardGroup := adminGroup.Group("/cards")
+		adminCardGroup.Use(middleware.JWTAdminMiddleware(jwtConfig))
+		adminCardGroup.POST("/batch-create", adminCardHandler.BatchCreate)
 
 		// 小程序公开API
 		miniappGroup := group.Group("/miniapp")

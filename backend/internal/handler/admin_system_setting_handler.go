@@ -114,3 +114,50 @@ func (h *AdminSystemSettingHandler) UpdateObjectStorageSettings(c *gin.Context) 
 
 	utils.Success(c, "object storage settings updated", result)
 }
+
+type updateRedemptionSettingsRequest struct {
+	BaseURL          string `json:"baseUrl"`
+	AdminAccessToken string `json:"adminAccessToken"`
+	AdminUserID      string `json:"adminUserId"`
+	PriceRules       string `json:"priceRules"`
+	ChangeNote       string `json:"changeNote" binding:"max=255"`
+}
+
+func (h *AdminSystemSettingHandler) GetRedemptionSettings(c *gin.Context) {
+	result, err := h.service.GetRedemptionSettings(c.Request.Context())
+	if err != nil {
+		utils.Error(c, err)
+		return
+	}
+	utils.Success(c, "redemption settings fetched", result)
+}
+
+func (h *AdminSystemSettingHandler) UpdateRedemptionSettings(c *gin.Context) {
+	var req updateRedemptionSettingsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Error(c, utils.BadRequestError(err.Error()))
+		return
+	}
+
+	adminID, ok := middleware.GetAdminID(c)
+	if !ok {
+		utils.Error(c, utils.UnauthorizedError("unauthorized"))
+		return
+	}
+
+	result, err := h.service.UpdateRedemptionSettings(c.Request.Context(), service.UpdateRedemptionSettingsInput{
+		BaseURL:          req.BaseURL,
+		AdminAccessToken: req.AdminAccessToken,
+		AdminUserID:      req.AdminUserID,
+		PriceRules:       req.PriceRules,
+		ChangeNote:       req.ChangeNote,
+		ChangedBy:        adminID,
+		ChangedIP:        c.ClientIP(),
+	})
+	if err != nil {
+		utils.Error(c, err)
+		return
+	}
+
+	utils.Success(c, "redemption settings updated", result)
+}

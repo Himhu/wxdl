@@ -4,7 +4,7 @@ import {
 } from 'antd';
 import { InfoCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { systemSettingApi } from '../../api/systemSetting';
-import type { WeChatSettings, ObjectStorageSettings } from '../../api/systemSetting';
+import type { WeChatSettings, ObjectStorageSettings, RedemptionSettings } from '../../api/systemSetting';
 
 const { Text, Title } = Typography;
 
@@ -45,6 +45,20 @@ export default function SystemSettings() {
 
   const [activeTab, setActiveTab] = useState('wechat');
   const ossLoaded = useState(false);
+  const [rdForm] = Form.useForm();
+  const [rdLoading, setRdLoading] = useState(false);
+  const [rdSettings, setRdSettings] = useState<RedemptionSettings | null>(null);
+  const rdLoaded = useState(false);
+
+  const loadRdSettings = useCallback(async () => {
+    try {
+      const res: any = await systemSettingApi.getRedemptionSettings();
+      setRdSettings(res);
+      let priceRules: any[] = [];
+      try { priceRules = res?.priceRules ? JSON.parse(res.priceRules) : []; } catch {}
+      rdForm.setFieldsValue({ baseUrl: res?.baseUrl, adminUserId: res?.adminUserId, priceRules });
+    } catch { message.error('加载兑换码站点配置失败') }
+  }, [rdForm, message]);
 
   useEffect(() => { loadWcSettings(); }, [loadWcSettings]);
 
@@ -52,6 +66,10 @@ export default function SystemSettings() {
     if (activeTab === 'oss' && !ossLoaded[0]) {
       loadOssSettings();
       ossLoaded[1](true);
+    }
+    if (activeTab === 'redemption' && !rdLoaded[0]) {
+      loadRdSettings();
+      rdLoaded[1](true);
     }
   }, [activeTab]);
 
@@ -210,11 +228,63 @@ export default function SystemSettings() {
     </div>
   );
 
+  const handleRdSubmit = async (values: any) => {
+    setRdLoading(true);
+    try {
+      await systemSettingApi.updateRedemptionSettings({
+        baseUrl: values.baseUrl || '',
+        adminAccessToken: values.adminAccessToken || '',
+        adminUserId: values.adminUserId || '',
+        priceRules: JSON.stringify(values.priceRules || []),
+        changeNote: values.changeNote,
+      });
+      message.success('兑换码站点配置已更新');
+      rdForm.resetFields(['adminAccessToken', 'changeNote']);
+      await loadRdSettings();
+    } catch { message.error('更新失败') }
+    finally { setRdLoading(false) }
+  };
+
+  const redemptionTab = (
+    <div style={{ maxWidth: 560, paddingTop: 16 }}>
+      <Form form={rdForm} layout="vertical" onFinish={handleRdSubmit}>
+        <Form.Item label="站点地址 (BaseURL)" name="baseUrl" rules={[{ required: true, message: '请输入站点地址' }]}>
+          <Input placeholder="https://your-site.com" size="large" />
+        </Form.Item>
+        <Form.Item
+          label={
+            <Space>
+              管理员 AccessToken
+              <Text type="secondary" style={{ fontSize: 12, fontWeight: 'normal' }}>
+                <InfoCircleOutlined style={{ marginRight: 4 }} />
+                加密存储
+              </Text>
+            </Space>
+          }
+          name="adminAccessToken"
+          extra={rdSettings?.adminAccessTokenMasked ? `当前密钥：${rdSettings.adminAccessTokenMasked}` : ''}
+        >
+          <Input.Password placeholder="输入新的 AccessToken（不改则留空）" size="large" />
+        </Form.Item>
+        <Form.Item label="管理员用户 ID" name="adminUserId" rules={[{ required: true, message: '请输入管理员用户 ID' }]}>
+          <Input placeholder="外部站点的管理员用户 ID" size="large" />
+        </Form.Item>
+        <Form.Item label="变更说明" name="changeNote">
+          <Input.TextArea rows={2} placeholder="简单记录修改原因（可选）" />
+        </Form.Item>
+        <Form.Item style={{ marginTop: 32 }}>
+          <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={rdLoading}>保存兑换码站点配置</Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+
   return (
     <Card variant="borderless" styles={{ body: { paddingTop: 12 } }}>
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
         { key: 'wechat', label: '微信小程序配置', children: wechatTab },
         { key: 'oss', label: '对象存储 (OSS) 配置', children: ossTab },
+        { key: 'redemption', label: '兑换码站点', children: redemptionTab },
       ]} />
     </Card>
   );

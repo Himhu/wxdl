@@ -41,6 +41,8 @@ type CardRepository interface {
 	GetByIDForUpdate(ctx context.Context, agentID, cardID uint) (*model.Card, error)
 	MarkDestroyed(ctx context.Context, cardID uint, destroyedAt time.Time) error
 	GetStats(ctx context.Context, agentID uint) (*CardStats, error)
+	Create(ctx context.Context, card *model.Card) error
+	CreatePointsRecord(ctx context.Context, record *model.PointsRecord) error
 }
 
 type cardRepository struct {
@@ -143,4 +145,12 @@ func (r *cardRepository) GetStats(ctx context.Context, agentID uint) (*CardStats
 	}
 
 	return stats, nil
+}
+
+func (r *cardRepository) Create(ctx context.Context, card *model.Card) error {
+	return r.db.WithContext(ctx).Create(card).Error
+}
+
+func (r *cardRepository) CreatePointsRecord(ctx context.Context, record *model.PointsRecord) error {
+	return r.db.WithContext(ctx).Create(record).Error
 }

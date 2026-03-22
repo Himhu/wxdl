@@ -42,6 +42,14 @@ export interface UpdateObjectStorageSettingsInput {
   changeNote?: string;
 }
 
+export interface RedemptionSettings {
+  baseUrl: string;
+  adminAccessTokenMasked: string;
+  adminUserId: string;
+  priceRules: string;
+  updatedAt: string;
+}
+
 export const systemSettingApi = {
   getWeChatSettings: () =>
     http.get<any, WeChatSettings>('/api/v1/admin/system-settings/wechat'),
@@ -54,4 +62,10 @@ export const systemSettingApi = {
 
   updateObjectStorageSettings: (data: UpdateObjectStorageSettingsInput) =>
     http.put<any, ObjectStorageSettings>('/api/v1/admin/system-settings/object-storage', data),
+
+  getRedemptionSettings: () =>
+    http.get<any, RedemptionSettings>('/api/v1/admin/system-settings/redemption'),
+
+  updateRedemptionSettings: (data: { baseUrl: string; adminAccessToken: string; adminUserId: string; priceRules?: string; changeNote?: string }) =>
+    http.put<any, RedemptionSettings>('/api/v1/admin/system-settings/redemption', data),
 };

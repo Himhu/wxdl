@@ -105,6 +105,8 @@ func main() {
 	adminSystemSettingHandler := handler.NewAdminSystemSettingHandler(systemSettingService)
 	miniProgramConfigHandler := handler.NewMiniProgramConfigHandler(miniProgramConfigService)
 	adminAgentHandler := handler.NewAdminAgentHandler(agentRepository)
+	adminCardHandler := handler.NewAdminCardHandler(systemSettingService)
+	agentCardHandler := handler.NewAgentCardHandler(systemSettingService, agentRepository, cardRepository, txManager)
 	auditHandler := handler.NewAuditHandler(agentRepository, userRepository, db)
 	healthHandler := handler.NewHealthHandler(cfg)
 	userHandler := handler.NewUserHandler(userService, legacySiteService, legacyTransferService, wechatClient, cfg.JWT)
@@ -123,7 +125,7 @@ func main() {
 		middleware.RequestLogger(logger),
 		middleware.Recovery(logger),
 	)
-	handler.RegisterRoutes(router, authHandler, cardHandler, agentHandler, pointsHandler, auditHandler, healthHandler, adminAuthHandler, adminAgentHandler, adminMiniProgramConfigHandler, miniProgramConfigHandler, adminSystemSettingHandler, userHandler, dashboardHandler, cfg.JWT, adminRepository)
+	handler.RegisterRoutes(router, authHandler, cardHandler, agentHandler, pointsHandler, auditHandler, healthHandler, adminAuthHandler, adminAgentHandler, adminCardHandler, agentCardHandler, adminMiniProgramConfigHandler, miniProgramConfigHandler, adminSystemSettingHandler, userHandler, dashboardHandler, cfg.JWT, adminRepository)
 
 	server := &http.Server{
 		Addr:         cfg.Server.Address(),

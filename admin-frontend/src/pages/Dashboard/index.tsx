@@ -44,7 +44,7 @@ export default function DashboardPage() {
       extra: (
         <Flex gap={16}>
           <Text type="secondary" style={{ fontSize: 13 }}>活跃 {data?.agentActiveTotal ?? 0}</Text>
-          <Divider type="vertical" />
+          <Divider orientation="vertical" />
           <Text type="secondary" style={{ fontSize: 13 }}>用户 {data?.userTotal ?? 0}</Text>
         </Flex>
       ),
@@ -57,7 +57,7 @@ export default function DashboardPage() {
       extra: (
         <Flex gap={16}>
           <Text type="secondary" style={{ fontSize: 13 }}>未使用 {data?.cardUnusedTotal ?? 0}</Text>
-          <Divider type="vertical" />
+          <Divider orientation="vertical" />
           <Text type="secondary" style={{ fontSize: 13 }}>已使用 {data?.cardUsedTotal ?? 0}</Text>
         </Flex>
       ),
@@ -105,7 +105,7 @@ export default function DashboardPage() {
                   value={card.value}
                   prefix={card.prefix}
                   precision={card.precision}
-                  valueStyle={{ fontSize: 28, fontWeight: 600, ...(card.valueStyle || {}) }}
+                  styles={{ content: { fontSize: 28, fontWeight: 600, ...(card.valueStyle || {}) } }}
                 />
               </Flex>
               {card.extra && (

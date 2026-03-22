@@ -135,3 +135,113 @@
   0%, 100% { transform: scale(0.8); opacity: 0.4; }
   50% { transform: scale(1.2); opacity: 0.8; }
 }
+
+/* --- 头部创建按钮 --- */
+.header-btn {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  background: var(--color-brand-primary);
+  padding: 10rpx 24rpx;
+  border-radius: 32rpx;
+  font-weight: 500;
+}
+
+/* --- 复制按钮 --- */
+.card-copy-btn {
+  font-size: 24rpx;
+  color: var(--color-brand-primary);
+  padding: 8rpx 20rpx;
+  border: 1rpx solid var(--color-brand-primary);
+  border-radius: 24rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+/* --- 创建弹窗 --- */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-content {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 40rpx 32rpx calc(env(safe-area-inset-bottom) + 32rpx);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1F2329;
+  text-align: center;
+  margin-bottom: 8rpx;
+}
+
+.modal-desc {
+  font-size: 26rpx;
+  color: #86909C;
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.quota-input-wrap {
+  margin-bottom: 32rpx;
+}
+
+.quota-input {
+  width: 100%;
+  height: 96rpx;
+  background: #F7F8FA;
+  border-radius: 16rpx;
+  padding: 0 28rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 20rpx;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.modal-btn-cancel {
+  background: #F3F5F9;
+  color: #4E5969;
+}
+
+.modal-btn-confirm {
+  background: var(--color-brand-primary);
+  color: #FFFFFF;
+}
+
+.modal-btn-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.modal-close {
+  text-align: center;
+  font-size: 30rpx;
+  color: #86909C;
+  padding: 16rpx 0;
+}

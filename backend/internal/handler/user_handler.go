@@ -66,8 +66,18 @@ func (h *UserHandler) WechatLogin(c *gin.Context) {
 		return
 	}
 
-	// 生成 JWT（role = "user"，复用 AgentID 字段存 userID）
-	token, err := utils.GenerateTokenWithRole(h.jwtConfig, uint(user.ID), user.Nickname, utils.RoleUser)
+	// 根据用户当前角色动态签发 JWT
+	tokenRole := utils.RoleUser
+	tokenID := uint(user.ID)
+	if user.Role == model.UserRoleAgent {
+		// 如果已是代理，尝试找到对应的 agent 记录，用 agent.ID 签发 agent token
+		agent, err := h.userService.GetAgentByOpenID(c.Request.Context(), user.OpenID)
+		if err == nil && agent != nil {
+			tokenRole = utils.RoleAgent
+			tokenID = agent.ID
+		}
+	}
+	token, err := utils.GenerateTokenWithRole(h.jwtConfig, tokenID, user.Nickname, tokenRole)
 	if err != nil {
 		utils.Error(c, utils.InternalError(fmt.Errorf("生成令牌失败: %w", err)))
 		return

@@ -31,9 +31,10 @@ func (Agent) TableName() string {
 // Card 卡密模型
 type Card struct {
 	ID          uint            `gorm:"primaryKey" json:"id"`
-	CardKey     string          `gorm:"uniqueIndex;size:32;not null" json:"cardKey"`
+	CardKey     string          `gorm:"uniqueIndex;size:64;not null" json:"cardKey"`
 	AgentID     uint            `gorm:"index;not null" json:"agentId"`
 	StationID   uint            `gorm:"index;default:0" json:"stationId"`
+	Quota       int             `gorm:"not null;default:0" json:"quota"`
 	Cost        decimal.Decimal `gorm:"type:decimal(20,2);not null;default:0.00" json:"cost"`
 	Status      int             `gorm:"not null;default:1" json:"status"`
 	UsedAt      *time.Time      `json:"usedAt"`

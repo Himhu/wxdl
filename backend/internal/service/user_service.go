@@ -78,6 +78,10 @@ func (s *UserService) GetAgentByID(ctx context.Context, agentID uint64) (*model.
 	return s.agentRepo.GetByID(ctx, uint(agentID))
 }
 
+func (s *UserService) GetAgentByOpenID(ctx context.Context, openID string) (*model.Agent, error) {
+	return s.agentRepo.GetByWechatOpenID(ctx, openID)
+}
+
 func (s *UserService) GetPendingApplication(ctx context.Context, userID uint64) (*model.AgentApplication, error) {
 	return s.userRepo.FindPendingApplicationByUserID(ctx, userID)
 }

@@ -1,46 +1,58 @@
 <view class="cards-container">
-  <!-- 头部 -->
   <view class="page-header">
     <view class="header-content">
       <text class="page-title">卡密管理</text>
-      <text class="page-count">{{ cardList.length }} 张</text>
+      <view class="header-btn" bindtap="onShowCreate">+ 创建兑换码</view>
     </view>
   </view>
 
-  <!-- 骨架屏 -->
   <skeleton loading="{{ loading && cardList.length === 0 }}" count="4" />
 
-  <!-- 卡密列表 Inset List -->
   <view class="card-list" wx:if="{{ cardList.length > 0 }}">
-    <view
-      class="card-item"
-      wx:for="{{ cardList }}"
-      wx:key="id"
-      data-id="{{ item.id }}"
-      bindtap="onCardDetail"
-    >
-      <view class="card-main">
+    <view class="card-item" wx:for="{{ cardList }}" wx:key="id">
+      <view class="card-main" data-id="{{ item.id }}" bindtap="onCardDetail">
         <view class="card-key-row">
           <text class="card-key">{{ item.cardKey }}</text>
           <status-tag type="card" status="{{ item.status }}" />
         </view>
         <view class="card-meta">
-          <text class="meta-text">创建 {{ item.createTime }}</text>
-          <text class="meta-text" wx:if="{{ item.usedTime }}">· 使用 {{ item.usedTime }}</text>
+          <text class="meta-text" wx:if="{{ item.quota }}">额度 {{ item.quota }}</text>
         </view>
       </view>
-      <text class="card-arrow">›</text>
+      <view class="card-copy-btn" data-key="{{ item.cardKey }}" catchtap="onCopyKey">复制</view>
     </view>
   </view>
 
-  <!-- 空态 -->
   <view class="empty-container" wx:elif="{{ !loading }}">
-    <empty-state text="暂无卡密数据" />
+    <empty-state text="暂无兑换码，点击上方按钮创建" />
   </view>
 
-  <!-- 分页加载 -->
   <view class="loading-more" wx:if="{{ loading && cardList.length > 0 }}">
     <view class="loading-dot"></view>
     <text class="loading-text">加载中</text>
+  </view>
+
+  <!-- 创建兑换码弹窗 -->
+  <view class="modal-mask" wx:if="{{ showCreateModal }}" bindtap="onCloseCreate">
+    <view class="modal-content" catchtap>
+      <view class="modal-title">创建兑换码</view>
+      <view class="modal-desc">输入额度，系统将生成对应的兑换码</view>
+      <view class="quota-input-wrap">
+        <input
+          class="quota-input"
+          type="number"
+          placeholder="请输入额度"
+          value="{{ inputQuota }}"
+          bindinput="onQuotaInput"
+          focus="{{ showCreateModal }}"
+        />
+      </view>
+      <view class="modal-btns">
+        <view class="modal-btn modal-btn-cancel" bindtap="onCloseCreate">取消</view>
+        <view class="modal-btn modal-btn-confirm {{ createLoading ? 'modal-btn-disabled' : '' }}" bindtap="onConfirmCreate">
+          {{ createLoading ? '创建中...' : '确认创建' }}
+        </view>
+      </view>
+    </view>
   </view>
 </view>
