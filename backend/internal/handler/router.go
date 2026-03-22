@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *CardHandler, agentHandler *AgentHandler, pointsHandler *PointsHandler, auditHandler *AuditHandler, healthHandler *HealthHandler, adminAuthHandler *AdminAuthHandler, adminAgentHandler *AdminAgentHandler, adminMiniProgramConfigHandler *AdminMiniProgramConfigHandler, miniProgramConfigHandler *MiniProgramConfigHandler, adminSystemSettingHandler *AdminSystemSettingHandler, userHandler *UserHandler, jwtConfig config.JWTConfig, adminRepo middleware.AdminPermissionReader) {
+func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *CardHandler, agentHandler *AgentHandler, pointsHandler *PointsHandler, auditHandler *AuditHandler, healthHandler *HealthHandler, adminAuthHandler *AdminAuthHandler, adminAgentHandler *AdminAgentHandler, adminMiniProgramConfigHandler *AdminMiniProgramConfigHandler, miniProgramConfigHandler *MiniProgramConfigHandler, adminSystemSettingHandler *AdminSystemSettingHandler, userHandler *UserHandler, dashboardHandler *DashboardHandler, jwtConfig config.JWTConfig, adminRepo middleware.AdminPermissionReader) {
 	register := func(group *gin.RouterGroup) {
 		group.GET("/health", healthHandler.Ping)
 
@@ -59,6 +59,11 @@ func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *C
 		protectedAdmin := adminAuthGroup.Group("")
 		protectedAdmin.Use(middleware.JWTAdminMiddleware(jwtConfig))
 		protectedAdmin.GET("/me", adminAuthHandler.Me)
+
+		// 数据概览
+		dashboardGroup := adminGroup.Group("/dashboard")
+		dashboardGroup.Use(middleware.JWTAdminMiddleware(jwtConfig))
+		dashboardGroup.GET("/overview", dashboardHandler.Overview)
 
 		// 小程序配置管理
 		miniProgramGroup := adminGroup.Group("/mini-program")
