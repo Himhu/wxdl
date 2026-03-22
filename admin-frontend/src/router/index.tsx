@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout';
+import AuditLogs from '../pages/AuditLogs';
 import CardManagement from '../pages/CardManagement';
 import DashboardPage from '../pages/Dashboard';
 import FinanceManagement from '../pages/FinanceManagement';
@@ -37,6 +38,7 @@ export default function AppRouter() {
           <Route path="cards" element={<CardManagement />} />
           <Route path="finance" element={<FinanceManagement />} />
           <Route path="transfer-records" element={<TransferRecords />} />
+          <Route path="audit-logs" element={<AuditLogs />} />
           <Route path="mini-program" element={<MiniProgramSettings />} />
           <Route path="system-settings" element={<SystemSettings />} />
         </Route>

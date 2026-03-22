@@ -65,6 +65,11 @@ func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *C
 		dashboardGroup.Use(middleware.JWTAdminMiddleware(jwtConfig))
 		dashboardGroup.GET("/overview", dashboardHandler.Overview)
 
+		// 管理员操作日志
+		adminAuditGroup := adminGroup.Group("/audit")
+		adminAuditGroup.Use(middleware.JWTAdminMiddleware(jwtConfig))
+		adminAuditGroup.GET("/logs", auditHandler.AdminListLogs)
+
 		// 小程序配置管理
 		miniProgramGroup := adminGroup.Group("/mini-program")
 		miniProgramGroup.Use(middleware.JWTAdminMiddleware(jwtConfig))

@@ -1,5 +1,5 @@
 import { Layout, Menu, Dropdown, Avatar, theme, Button } from 'antd';
-import { DashboardOutlined, UserOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, CreditCardOutlined, WalletOutlined, SwapOutlined } from '@ant-design/icons';
+import { DashboardOutlined, UserOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, CreditCardOutlined, WalletOutlined, SwapOutlined, FileTextOutlined } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { brandColors } from '../theme';
@@ -62,6 +62,11 @@ export default function AdminLayout() {
               key: '/transfer-records',
               icon: <SwapOutlined />,
               label: <Link to="/transfer-records">数据转移</Link>,
+            },
+            {
+              key: '/audit-logs',
+              icon: <FileTextOutlined />,
+              label: <Link to="/audit-logs">操作日志</Link>,
             },
             {
               key: '/mini-program',
