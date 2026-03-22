@@ -1,115 +1,60 @@
-# 代理站管理微信小程序
+# 微信代理小程序
 
-## 项目简介
-这是一个用于代理站管理的微信小程序，支持多站点切换、卡密管理、积分充值等功能。
+微信小程序 + 管理后台 + Go 后端的代理商管理系统。
 
-## 功能特性
-- ✅ 双站点独立管理（站点A、站点B）
-- ✅ 卡密管理（创建、查询、销毁）
-- ✅ 批量创建卡密
-- ✅ 多级代理系统
-- ✅ 线下充值审核
-- ✅ 完整操作日志
-- ✅ 站点快速切换
+## 项目结构
+
+```
+├── backend/            # Go 后端（统一 API，服务小程序和管理端）
+├── admin-frontend/     # 管理后台（React + Ant Design）
+├── miniprogram/        # 微信小程序
+└── docs/               # 项目文档
+```
+
+## 快速启动
+
+### 1. 后端
+
+```bash
+cd backend
+cp configs/config.yaml.example configs/config.yaml  # 首次需配置数据库和微信参数
+go run cmd/server/main.go
+```
+
+默认监听 `0.0.0.0:8080`
+
+### 2. 管理端
+
+```bash
+cd admin-frontend
+npm install
+npm run dev
+```
+
+默认访问 `http://localhost:5174`，管理员账号 `admin / admin123`
+
+### 3. 小程序
+
+用微信开发者工具打开 `miniprogram/` 目录，配置 `config/index.js` 中的 `API_BASE_URL` 指向后端地址。
+
+## 核心功能
+
+| 模块 | 说明 |
+|------|------|
+| 微信登录 | 一键登录自动注册，代理申请由管理员审批 |
+| 代理邀请 | 生成邀请码/小程序码海报，扫码自动绑定邀请关系 |
+| 卡密管理 | 卡密生成、分发、核销、作废 |
+| 积分体系 | 充值申请、审批、余额管理 |
+| 数据转移 | 旧站余额查询、确认转移、旧站账号禁用 |
+| 对象存储 | 支持雨云 ROS / 阿里云 OSS / MinIO（S3 兼容） |
+| 管理后台 | 数据概览、用户管理、卡密管理、系统设置 |
 
 ## 技术栈
-- 微信小程序原生框架
-- MobX 状态管理
-- 模块化 API 封装
 
-## 目录结构
-```
-miniprogram/
-├── api/              # API 接口层
-│   ├── request.js    # 请求封装
-│   ├── card.js       # 卡密接口
-│   ├── finance.js    # 财务接口
-│   └── proxy.js      # 代理接口
-├── components/       # 全局组件
-│   ├── station-switch/  # 站点切换器
-│   ├── status-tag/      # 状态标签
-│   └── empty-state/     # 空状态
-├── config/           # 配置文件
-│   └── index.js      # 全局配置
-├── pages/            # 页面
-│   ├── tabbar/       # 底部导航页面
-│   │   ├── home/     # 工作台
-│   │   ├── cards/    # 卡密管理
-│   │   └── profile/  # 我的
-│   ├── card/         # 卡密相关（分包）
-│   ├── finance/      # 财务相关（分包）
-│   ├── proxy/        # 代理相关（分包）
-│   └── common/       # 通用页面
-│       └── login/    # 登录页
-├── store/            # 状态管理
-│   ├── user.js       # 用户状态
-│   └── station.js    # 站点状态
-├── styles/           # 全局样式
-│   ├── variables.wxss  # 变量
-│   └── common.wxss     # 通用样式
-├── utils/            # 工具函数
-│   └── format.js     # 格式化工具
-├── app.js
-├── app.json
-└── app.wxss
-```
+- **后端**：Go + Gin + GORM + MySQL + JWT
+- **管理端**：React + TypeScript + Ant Design + Vite
+- **小程序**：原生微信小程序 + MobX
 
-## 快速开始
+## 文档
 
-### 1. 安装依赖
-```bash
-npm install
-```
-
-### 2. 构建 npm
-在微信开发者工具中：工具 -> 构建 npm
-
-### 3. 配置后端 API
-修改 `miniprogram/config/index.js` 中的 `API_BASE_URL`
-
-### 4. 运行项目
-在微信开发者工具中打开项目目录
-
-## 待对接 API 列表
-
-### 认证相关
-- `POST /api/auth/login` - 登录
-- `GET /api/auth/userinfo` - 获取用户信息
-
-### 卡密相关
-- `GET /api/cards` - 获取卡密列表
-- `POST /api/cards/create` - 创建单个卡密
-- `POST /api/cards/create/batch` - 批量创建卡密
-- `GET /api/cards/:id` - 获取卡密详情
-- `POST /api/cards/:id/destroy` - 销毁卡密
-- `GET /api/cards/:id/logs` - 获取卡密操作日志
-
-### 财务相关
-- `POST /api/points/recharge` - 提交充值申请
-- `GET /api/points/ledger` - 获取充值记录
-- `GET /api/points/balance/:agentId` - 获取积分余额
-
-### 代理相关
-- `GET /api/proxy/list` - 获取下级代理列表
-- `GET /api/audit/logs` - 获取操作日志
-
-## 注意事项
-1. 所有 API 请求会自动携带 `Authorization` 和 `X-Site-Id` 请求头
-2. 站点切换后会自动更新 `X-Site-Id`，无需手动处理
-3. Token 过期会自动跳转到登录页
-4. 需要在微信公众平台配置服务器域名白名单
-
-## 下一步开发
-- [ ] 实现卡密创建页面（单个/批量）
-- [ ] 实现卡密详情页面
-- [ ] 实现充值申请页面
-- [ ] 实现充值记录页面
-- [ ] 实现下级代理列表页面
-- [ ] 实现操作日志页面
-- [ ] 对接后端 API
-- [ ] 完善错误处理
-- [ ] 添加加载状态优化
-- [ ] 性能优化
-
-## 联系方式
-如有问题，请联系开发团队。
+详细文档见 [docs/](docs/) 目录。
