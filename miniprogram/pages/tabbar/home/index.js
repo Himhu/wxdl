@@ -1,6 +1,5 @@
 const { storeBindingsBehavior } = require('mobx-miniprogram-bindings')
 const userStore = require('../../../store/user')
-const stationStore = require('../../../store/station')
 const authApi = require('../../../api/auth')
 const http = require('../../../api/request')
 
@@ -12,10 +11,6 @@ Page({
       store: userStore,
       fields: ['userInfo', 'isLogin'],
       actions: ['updateUserInfo']
-    },
-    {
-      store: stationStore,
-      fields: ['currentSiteInfo']
     }
   ],
 
@@ -43,14 +38,21 @@ Page({
           ...res.userInfo,
           agentBalance: res.userInfo.agentBalance || (this.data.userInfo && this.data.userInfo.agentBalance) || '0.00'
         }
+        const isAgent = nextUserInfo.role === 'agent'
         this.updateUserInfo(nextUserInfo)
         this.setData({
-          isAgent: nextUserInfo.role === 'agent',
+          isAgent,
           stats: {
             ...this.data.stats,
             balance: Number(nextUserInfo.agentBalance || 0)
           }
         })
+
+        if (isAgent) {
+          this._loadCardStats()
+        } else {
+          this.setData({ stats: { totalCards: 0, usedCards: 0, balance: 0 } })
+        }
       }
     } catch (err) {
       console.error('刷新角色失败', err)
@@ -69,22 +71,18 @@ Page({
     wx.navigateTo({ url: '/pages/common/login/index' })
   },
 
-  async loadStats() {
+  async _loadCardStats() {
     try {
-      const [balanceRes, cardsRes] = await Promise.all([
-        http.get('/api/v1/points/balance'),
-        http.get('/api/v1/cards/stats')
-      ])
-
+      const res = await http.get('/api/v1/cards/stats')
       this.setData({
         stats: {
-          totalCards: cardsRes.total || 0,
-          usedCards: cardsRes.used || 0,
-          balance: balanceRes.balance || 0
+          ...this.data.stats,
+          totalCards: Number(res.total || 0),
+          usedCards: Number(res.used || 0)
         }
       })
     } catch (err) {
-      console.error('加载统计数据失败', err)
+      console.error('加载卡密统计失败', err)
     }
   },
 

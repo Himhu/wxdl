@@ -1,5 +1,4 @@
 const cardApi = require('../../../api/card')
-const stationStore = require('../../../store/station')
 
 Page({
   data: {
@@ -13,17 +12,10 @@ Page({
   },
 
   onLoad() {
-    this.lastLoadedSite = stationStore.currentSite
     this.loadCardList()
   },
 
-  onShow() {
-    if (this.lastLoadedSite && this.lastLoadedSite !== stationStore.currentSite) {
-      this.lastLoadedSite = stationStore.currentSite
-      this.setData({ page: 1, hasMore: true, cardList: [] })
-      this.loadCardList()
-    }
-  },
+  onShow() {},
 
   onPullDownRefresh() {
     this.setData({ page: 1, hasMore: true })

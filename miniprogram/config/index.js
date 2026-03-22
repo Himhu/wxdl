@@ -3,22 +3,6 @@ module.exports = {
   // API 基础地址（后续对接时修改）
   API_BASE_URL: 'http://192.168.1.20:8080',
 
-  // 站点配置
-  SITES: [
-    {
-      id: 'site_a',
-      name: '站点A',
-      color: '#1677FF',
-      apiPrefix: '/site-a'
-    },
-    {
-      id: 'site_b',
-      name: '站点B',
-      color: '#00B578',
-      apiPrefix: '/site-b'
-    }
-  ],
-
   // 卡密状态枚举
   CARD_STATUS: {
     UNUSED: { value: 0, label: '未使用', color: '#2F57C8', bgColor: '#EDF3FF', borderColor: '#C9DBFF' },

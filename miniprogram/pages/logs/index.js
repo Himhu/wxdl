@@ -1,5 +1,4 @@
 const proxyApi = require('../../api/proxy')
-const stationStore = require('../../store/station')
 const userStore = require('../../store/user')
 
 Page({
@@ -24,17 +23,10 @@ Page({
       return
     }
 
-    this.lastLoadedSite = stationStore.currentSite
     this.loadLogs()
   },
 
-  onShow() {
-    if (this.lastLoadedSite && this.lastLoadedSite !== stationStore.currentSite) {
-      this.lastLoadedSite = stationStore.currentSite
-      this.setData({ page: 1, hasMore: true, logs: [] })
-      this.loadLogs()
-    }
-  },
+  onShow() {},
 
   onPullDownRefresh() {
     this.setData({ page: 1, hasMore: true })

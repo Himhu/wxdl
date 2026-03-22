@@ -1,16 +1,13 @@
 const config = require('../config/index')
 const userStore = require('../store/user')
-const stationStore = require('../store/station')
 
 // 请求拦截器 — 从 mobx store 读取，避免每次请求调用 wx.getStorageSync
 const requestInterceptor = (options) => {
   const token = userStore.token
-  const currentSite = stationStore.currentSite || config.SITES[0].id
 
   options.header = {
     'Content-Type': 'application/json',
     'Authorization': token ? `Bearer ${token}` : '',
-    'X-Site-Id': currentSite,
     ...options.header
   }
 

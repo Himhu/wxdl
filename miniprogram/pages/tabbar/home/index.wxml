@@ -6,8 +6,7 @@
         <view class="welcome-text">{{ isLogin ? (userInfo.nickname || '用户') : '访客' }}，你好</view>
         <view class="sub-text">今日数据概览</view>
       </view>
-      <station-switch wx:if="{{ isLogin }}" />
-      <view wx:else class="login-btn" bindtap="onLogin">登录</view>
+      <view wx:if="{{ !isLogin }}" class="login-btn" bindtap="onLogin">登录</view>
     </view>
   </view>
 
