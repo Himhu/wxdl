@@ -22,14 +22,37 @@ database:
   max_open_conns: 100
   conn_max_lifetime: 3600
 
+cors:
+  allow_origins:
+    - http://localhost:5173
+    - http://localhost:5174
+    - http://192.168.1.20:5173
+    - http://192.168.1.20:5174
+  allow_methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allow_headers:
+    - Origin
+    - Content-Type
+    - Accept
+    - Authorization
+  expose_headers:
+    - Content-Length
+  allow_credentials: true
+  max_age: 43200
+
 jwt:
-  secret: your-super-secret-key
+  secret: dev-secret-key-change-in-production-2024
   issuer: gin-backend
   expire_hours: 72
 
 wechat:
-  app_id: your-wechat-app-id
-  app_secret: your-wechat-app-secret
+  app_id: wx05ec688e9aa28114
+  app_secret: 381147b8b079a1f0adf9eacdb834be74
   api_base: https://api.weixin.qq.com
   timeout_seconds: 5
 

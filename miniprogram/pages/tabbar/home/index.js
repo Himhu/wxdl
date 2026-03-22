@@ -2,6 +2,7 @@ const { storeBindingsBehavior } = require('mobx-miniprogram-bindings')
 const userStore = require('../../../store/user')
 const stationStore = require('../../../store/station')
 const authApi = require('../../../api/auth')
+const http = require('../../../api/request')
 
 Page({
   behaviors: [storeBindingsBehavior],
@@ -37,16 +38,30 @@ Page({
     try {
       const res = await authApi.refreshUserInfo()
       if (res.userInfo) {
-        this.updateUserInfo(res.userInfo)
-        this.setData({ isAgent: res.userInfo.role === 'agent' })
-        if (res.userInfo.role === 'agent') {
-          this.loadStats()
+        const nextUserInfo = {
+          ...this.data.userInfo,
+          ...res.userInfo,
+          agentBalance: res.userInfo.agentBalance || (this.data.userInfo && this.data.userInfo.agentBalance) || '0.00'
         }
+        this.updateUserInfo(nextUserInfo)
+        this.setData({
+          isAgent: nextUserInfo.role === 'agent',
+          stats: {
+            ...this.data.stats,
+            balance: Number(nextUserInfo.agentBalance || 0)
+          }
+        })
       }
     } catch (err) {
       console.error('刷新角色失败', err)
       const userInfo = this.data.userInfo
-      this.setData({ isAgent: !!(userInfo && userInfo.role === 'agent') })
+      this.setData({
+        isAgent: !!(userInfo && userInfo.role === 'agent'),
+        stats: {
+          ...this.data.stats,
+          balance: Number((userInfo && userInfo.agentBalance) || 0)
+        }
+      })
     }
   },
 
@@ -55,8 +70,22 @@ Page({
   },
 
   async loadStats() {
-    // TODO: 调用API获取统计数据
-    console.log('加载统计数据')
+    try {
+      const [balanceRes, cardsRes] = await Promise.all([
+        http.get('/api/v1/points/balance'),
+        http.get('/api/v1/cards/stats')
+      ])
+
+      this.setData({
+        stats: {
+          totalCards: cardsRes.total || 0,
+          usedCards: cardsRes.used || 0,
+          balance: balanceRes.balance || 0
+        }
+      })
+    } catch (err) {
+      console.error('加载统计数据失败', err)
+    }
   },
 
   onCardManage() {
@@ -70,6 +99,7 @@ Page({
   },
 
   onViewLogs() {
+    if (!this._checkAgent('操作日志')) return
     wx.navigateTo({ url: '/pages/logs/index' })
   },
 

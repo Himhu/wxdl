@@ -1,5 +1,6 @@
 const proxyApi = require('../../api/proxy')
 const stationStore = require('../../store/station')
+const userStore = require('../../store/user')
 
 Page({
   data: {
@@ -10,6 +11,19 @@ Page({
   },
 
   onLoad() {
+    const userInfo = userStore.userInfo || {}
+    if (userInfo.role !== 'agent') {
+      wx.showModal({
+        title: '权限不足',
+        content: '操作日志仅代理可用，请联系管理员开通权限',
+        showCancel: false,
+        success: () => {
+          wx.navigateBack({ delta: 1 })
+        }
+      })
+      return
+    }
+
     this.lastLoadedSite = stationStore.currentSite
     this.loadLogs()
   },

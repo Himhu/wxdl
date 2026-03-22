@@ -26,6 +26,11 @@ func jwtRoleMiddleware(cfg config.JWTConfig, allowedRoles ...string) gin.Handler
 	return func(c *gin.Context) {
 		authorization := c.GetHeader("Authorization")
 		if authorization == "" {
+			if token := strings.TrimSpace(c.Query("token")); token != "" {
+				authorization = "Bearer " + token
+			}
+		}
+		if authorization == "" {
 			utils.Error(c, utils.UnauthorizedError("missing authorization header"))
 			c.Abort()
 			return

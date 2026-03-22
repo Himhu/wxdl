@@ -20,6 +20,13 @@ type AgentListQuery struct {
 	Keyword  string
 }
 
+type AdminAgentListQuery struct {
+	Page     int
+	PageSize int
+	Status   *int
+	Keyword  string
+}
+
 type AgentRepository interface {
 	Create(ctx context.Context, agent *model.Agent) error
 	GetByID(ctx context.Context, id uint) (*model.Agent, error)
@@ -28,11 +35,13 @@ type AgentRepository interface {
 	GetByWechatOpenID(ctx context.Context, openID string) (*model.Agent, error)
 	GetDirectChildByID(ctx context.Context, parentID, agentID uint) (*model.Agent, error)
 	ListDirectChildren(ctx context.Context, query AgentListQuery) ([]model.Agent, int64, error)
+	ListAll(ctx context.Context, query AdminAgentListQuery) ([]model.Agent, int64, error)
 	Update(ctx context.Context, agent *model.Agent) error
 	UpdateStatus(ctx context.Context, agentID uint, status int) error
 	UpdateBalance(ctx context.Context, agentID uint, balance decimal.Decimal) error
 	BindWechat(ctx context.Context, agentID uint, openID, unionID string) error
 	CreateLoginLog(ctx context.Context, log *model.LoginLog) error
+	ListLoginLogs(ctx context.Context, agentID uint, page, pageSize int) ([]model.LoginLog, int64, error)
 }
 
 type agentRepository struct {
@@ -138,6 +147,29 @@ func (r *agentRepository) ListDirectChildren(ctx context.Context, query AgentLis
 	return agents, total, nil
 }
 
+func (r *agentRepository) ListAll(ctx context.Context, query AdminAgentListQuery) ([]model.Agent, int64, error) {
+	base := r.db.WithContext(ctx).Model(&model.Agent{})
+	if query.Status != nil {
+		base = base.Where("status = ?", *query.Status)
+	}
+	if keyword := strings.TrimSpace(query.Keyword); keyword != "" {
+		like := "%" + keyword + "%"
+		base = base.Where("username LIKE ? OR real_name LIKE ? OR phone LIKE ? OR wechat_open_id LIKE ?", like, like, like, like)
+	}
+
+	var total int64
+	if err := base.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var agents []model.Agent
+	if err := base.Order("id DESC").Offset((query.Page - 1) * query.PageSize).Limit(query.PageSize).Find(&agents).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return agents, total, nil
+}
+
 func (r *agentRepository) Update(ctx context.Context, agent *model.Agent) error {
 	return r.db.WithContext(ctx).Save(agent).Error
 }
@@ -168,4 +200,20 @@ func (r *agentRepository) BindWechat(ctx context.Context, agentID uint, openID, 
 
 func (r *agentRepository) CreateLoginLog(ctx context.Context, log *model.LoginLog) error {
 	return r.db.WithContext(ctx).Create(log).Error
+}
+
+func (r *agentRepository) ListLoginLogs(ctx context.Context, agentID uint, page, pageSize int) ([]model.LoginLog, int64, error) {
+	base := r.db.WithContext(ctx).Model(&model.LoginLog{}).Where("agent_id = ?", agentID)
+
+	var total int64
+	if err := base.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var logs []model.LoginLog
+	if err := base.Order("id DESC").Offset((page - 1) * pageSize).Limit(pageSize).Find(&logs).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return logs, total, nil
 }

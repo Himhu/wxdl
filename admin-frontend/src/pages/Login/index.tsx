@@ -20,8 +20,8 @@ export default function LoginPage() {
   const onFinish = async (values: LoginFormValues) => {
     setLoading(true);
     try {
-      const res = await http.post('/api/v1/admin/auth/login', values);
-      const token = res.data?.token;
+      const res = await http.post<any, { token?: string }>('/api/v1/admin/auth/login', values);
+      const token = res?.token;
 
       if (!token) {
         messageApi.error('未返回登录令牌');

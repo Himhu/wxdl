@@ -92,7 +92,9 @@ func main() {
 	adminAuthService := service.NewAdminAuthService(adminRepository, cfg.JWT)
 	miniProgramConfigService := service.NewMiniProgramConfigService(miniProgramConfigRepository)
 	systemSettingService := service.NewSystemSettingService(systemSettingRepository, txManager, cipher, runtimeProvider)
-	userService := service.NewUserService(userRepository)
+	userService := service.NewUserService(userRepository, agentRepository, systemSettingRepository, cipher)
+	legacySiteService := service.NewLegacySiteService("http://dl.jiexi6.cn", 10)
+	legacyTransferService := service.NewLegacyTransferService(legacySiteService, userRepository, agentRepository, txManager, "admin", "wugui1996")
 
 	authHandler := handler.NewAuthHandler(authService)
 	cardHandler := handler.NewCardHandler(cardService)
@@ -102,8 +104,10 @@ func main() {
 	adminMiniProgramConfigHandler := handler.NewAdminMiniProgramConfigHandler(miniProgramConfigService)
 	adminSystemSettingHandler := handler.NewAdminSystemSettingHandler(systemSettingService)
 	miniProgramConfigHandler := handler.NewMiniProgramConfigHandler(miniProgramConfigService)
+	adminAgentHandler := handler.NewAdminAgentHandler(agentRepository)
+	auditHandler := handler.NewAuditHandler(agentRepository, userRepository)
 	healthHandler := handler.NewHealthHandler(cfg)
-	userHandler := handler.NewUserHandler(userService, wechatClient, cfg.JWT)
+	userHandler := handler.NewUserHandler(userService, legacySiteService, legacyTransferService, wechatClient, cfg.JWT)
 
 	router := gin.New()
 	router.Use(
@@ -118,7 +122,7 @@ func main() {
 		middleware.RequestLogger(logger),
 		middleware.Recovery(logger),
 	)
-	handler.RegisterRoutes(router, authHandler, cardHandler, agentHandler, pointsHandler, healthHandler, adminAuthHandler, adminMiniProgramConfigHandler, miniProgramConfigHandler, adminSystemSettingHandler, userHandler, cfg.JWT, adminRepository)
+	handler.RegisterRoutes(router, authHandler, cardHandler, agentHandler, pointsHandler, auditHandler, healthHandler, adminAuthHandler, adminAgentHandler, adminMiniProgramConfigHandler, miniProgramConfigHandler, adminSystemSettingHandler, userHandler, cfg.JWT, adminRepository)
 
 	server := &http.Server{
 		Addr:         cfg.Server.Address(),

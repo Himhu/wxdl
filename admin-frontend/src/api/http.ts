@@ -23,8 +23,7 @@ http.interceptors.response.use(
       return Promise.reject(new Error(body?.message || '请求失败'));
     }
 
-    response.data = body?.data;
-    return response;
+    return body?.data;
   },
   (error) => Promise.reject(error)
 );

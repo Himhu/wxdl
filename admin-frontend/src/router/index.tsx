@@ -1,9 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AdminLayout from '../layouts/AdminLayout';
+import CardManagement from '../pages/CardManagement';
 import DashboardPage from '../pages/Dashboard';
+import FinanceManagement from '../pages/FinanceManagement';
 import LoginPage from '../pages/Login';
 import MiniProgramSettings from '../pages/MiniProgramSettings';
 import SystemSettings from '../pages/SystemSettings';
+import TransferRecords from '../pages/TransferRecords';
 import UserManagement from '../pages/UserManagement';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -31,6 +34,9 @@ export default function AppRouter() {
         >
           <Route index element={<DashboardPage />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="cards" element={<CardManagement />} />
+          <Route path="finance" element={<FinanceManagement />} />
+          <Route path="transfer-records" element={<TransferRecords />} />
           <Route path="mini-program" element={<MiniProgramSettings />} />
           <Route path="system-settings" element={<SystemSettings />} />
         </Route>

@@ -35,6 +35,8 @@ type UpdateWeChatSettingsInput struct {
 type SystemSettingService interface {
 	GetWeChatSettings(ctx context.Context) (*WeChatSettingView, error)
 	UpdateWeChatSettings(ctx context.Context, input UpdateWeChatSettingsInput) (*WeChatSettingView, error)
+	GetObjectStorageSettings(ctx context.Context) (*ObjectStorageSettingView, error)
+	UpdateObjectStorageSettings(ctx context.Context, input UpdateObjectStorageSettingsInput) (*ObjectStorageSettingView, error)
 }
 
 type systemSettingService struct {
@@ -230,5 +232,145 @@ func upsertSystemSettingWithRevision(
 	revision.Version = setting.Version
 
 	return repo.CreateRevision(ctx, revision)
+}
+
+// ObjectStorageSettingView 对象存储配置视图
+type ObjectStorageSettingView struct {
+	Enabled         bool      `json:"enabled"`
+	Provider        string    `json:"provider"`
+	Endpoint        string    `json:"endpoint"`
+	Bucket          string    `json:"bucket"`
+	AccessKeyID     string    `json:"accessKeyId"`
+	SecretKeyMasked string    `json:"secretKeyMasked"`
+	Region          string    `json:"region"`
+	CustomDomain    string    `json:"customDomain"`
+	PathPrefix      string    `json:"pathPrefix"`
+	UpdatedAt       time.Time `json:"updatedAt"`
+}
+
+// UpdateObjectStorageSettingsInput 更新对象存储配置输入
+type UpdateObjectStorageSettingsInput struct {
+	Enabled      bool
+	Provider     string
+	Endpoint     string
+	Bucket       string
+	AccessKeyID  string
+	SecretKey    string
+	Region       string
+	CustomDomain string
+	PathPrefix   string
+	ChangeNote   string
+	ChangedBy    uint
+	ChangedIP    string
+}
+
+func (s *systemSettingService) GetObjectStorageSettings(ctx context.Context) (*ObjectStorageSettingView, error) {
+	settings, err := s.repo.ListByCategory(ctx, "object_storage")
+	if err != nil {
+		return nil, err
+	}
+
+	view := &ObjectStorageSettingView{UpdatedAt: time.Now()}
+	for _, st := range settings {
+		val := ""
+		if st.ValuePlain != nil {
+			val = *st.ValuePlain
+		}
+		switch st.SettingKey {
+		case "enabled":
+			view.Enabled = val == "true"
+		case "provider":
+			view.Provider = val
+		case "endpoint":
+			view.Endpoint = val
+		case "bucket":
+			view.Bucket = val
+		case "access_key_id":
+			view.AccessKeyID = val
+		case "secret_key":
+			if st.ValueMasked != nil {
+				view.SecretKeyMasked = *st.ValueMasked
+			}
+		case "region":
+			view.Region = val
+		case "custom_domain":
+			view.CustomDomain = val
+		case "path_prefix":
+			view.PathPrefix = val
+		}
+		if st.UpdatedAt.After(view.UpdatedAt) {
+			view.UpdatedAt = st.UpdatedAt
+		}
+	}
+	return view, nil
+}
+
+func (s *systemSettingService) UpdateObjectStorageSettings(ctx context.Context, input UpdateObjectStorageSettingsInput) (*ObjectStorageSettingView, error) {
+	now := time.Now()
+	enabledStr := "false"
+	if input.Enabled {
+		enabledStr = "true"
+	}
+
+	plainFields := map[string]struct{ value, display, desc string }{
+		"enabled":       {enabledStr, "是否开启", "对象存储开关"},
+		"provider":      {input.Provider, "存储类型", "如 aliyun-oss"},
+		"endpoint":      {input.Endpoint, "Endpoint", "对象存储节点地址"},
+		"bucket":        {input.Bucket, "Bucket", "存储桶名称"},
+		"access_key_id": {input.AccessKeyID, "AccessKeyID", "访问密钥 ID"},
+		"region":        {input.Region, "Region", "地域"},
+		"custom_domain": {input.CustomDomain, "自定义域名", "CDN 或自定义访问域名"},
+		"path_prefix":   {input.PathPrefix, "目录前缀", "上传目录前缀"},
+	}
+
+	if err := s.txManager.WithinTx(ctx, func(repos repository.TxRepositories) error {
+		repo := repos.SystemSetting()
+		for key, info := range plainFields {
+			v := info.value
+			setting := &model.SystemSetting{
+				Category: "object_storage", SettingKey: key,
+				DisplayName: info.display, ValueType: "string",
+				IsSecret: false, ValuePlain: &v,
+				Source: "database", Status: 1, Description: info.desc,
+				UpdatedBy: &input.ChangedBy, PublishedAt: &now,
+			}
+			revision := &model.SystemSettingRevision{
+				Category: "object_storage", SettingKey: key, Operation: "update",
+				NewValueMasked: &v, ChangeNote: input.ChangeNote,
+				ChangedBy: &input.ChangedBy, ChangedIP: input.ChangedIP,
+			}
+			if err := upsertSystemSettingWithRevision(ctx, repo, setting, revision); err != nil {
+				return err
+			}
+		}
+
+		if input.SecretKey != "" {
+			ct, masked, checksum, keyVer, err := s.cipher.Encrypt(input.SecretKey, "oss.secret_key")
+			if err != nil {
+				return fmt.Errorf("encrypt secret_key: %w", err)
+			}
+			setting := &model.SystemSetting{
+				Category: "object_storage", SettingKey: "secret_key",
+				DisplayName: "SecretKey", ValueType: "secret",
+				IsSecret: true, ValueCiphertext: &ct, ValueMasked: &masked,
+				Checksum: &checksum, KeyVersion: &keyVer,
+				Source: "database", Status: 1, Description: "访问密钥 Secret",
+				UpdatedBy: &input.ChangedBy, PublishedAt: &now,
+			}
+			revision := &model.SystemSettingRevision{
+				Category: "object_storage", SettingKey: "secret_key", Operation: "update",
+				NewValueMasked: &masked, NewChecksum: &checksum,
+				ChangeNote: input.ChangeNote, ChangedBy: &input.ChangedBy, ChangedIP: input.ChangedIP,
+			}
+			if err := upsertSystemSettingWithRevision(ctx, repo, setting, revision); err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("update object storage settings: %w", err)
+	}
+
+	return s.GetObjectStorageSettings(ctx)
 }
 

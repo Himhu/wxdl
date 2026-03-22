@@ -128,7 +128,23 @@
   color: #5B7CF0;
 }
 
-/* --- 菜单列表 --- */
+.role-card-agent {
+  background: linear-gradient(135deg, #2F57C8 0%, #3E6AE1 100%);
+  border-color: rgba(62, 106, 225, 0.24);
+}
+
+.role-icon-box-agent {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.role-title-agent {
+  color: #FFFFFF;
+}
+
+.role-desc-agent {
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .menu-section {
   padding: var(--spacing-md) var(--spacing-lg) 0;
 }
@@ -207,35 +223,6 @@
   font-size: var(--font-size-xl);
   color: var(--color-text-quaternary);
   font-weight: 300;
-}
-
-/* --- Mock 测试区 --- */
-.mock-section {
-  margin: var(--spacing-xl) var(--spacing-lg) 0;
-  padding: var(--spacing-md);
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-lg);
-  border: 1rpx dashed var(--color-border-default);
-}
-
-.mock-title {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-  margin-bottom: var(--spacing-sm);
-  text-align: center;
-}
-
-.mock-btns {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-sm);
-}
-
-.mock-btn {
-  font-size: var(--font-size-xs) !important;
-  color: var(--color-brand-primary) !important;
-  background: var(--color-brand-soft) !important;
-  border: 1rpx solid var(--color-brand-200) !important;
 }
 
 /* --- 退出登录 --- */

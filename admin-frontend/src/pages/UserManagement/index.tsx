@@ -1,234 +1,223 @@
 import { useState, useEffect, useCallback } from 'react'
-import {
-  Card,
-  Table,
-  Input,
-  Select,
-  Button,
-  Tag,
-  Space,
-  Modal,
-  Form,
-  InputNumber,
-  message,
-  Avatar,
-  Typography,
-} from 'antd'
-import { SearchOutlined, UserOutlined } from '@ant-design/icons'
-import userApi, { type UserInfo, type UserListParams } from '../../api/user'
-
-const { Text } = Typography
-
-const ROLE_OPTIONS = [
-  { label: '全部', value: '' },
-  { label: '普通用户', value: 'user' },
-  { label: '代理商', value: 'agent' },
-]
-
-const AGENT_LEVEL_OPTIONS = [
-  { label: '总代理', value: 0 },
-  { label: '一级代理', value: 1 },
-  { label: '二级代理', value: 2 },
-  { label: '三级代理', value: 3 },
-]
+import { Tabs, Table, Button, Space, Input, Badge, App, Popconfirm, Tag, Avatar } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+import userApi from '../../api/user'
+import agentApi from '../../api/agent'
+import type { UserInfo, AgentApplication } from '../../api/user'
+import type { AgentInfo } from '../../api/agent'
 
 export default function UserManagement() {
-  const [loading, setLoading] = useState(false)
-  const [users, setUsers] = useState<UserInfo[]>([])
-  const [total, setTotal] = useState(0)
-  const [params, setParams] = useState<UserListParams>({ page: 1, pageSize: 20, role: '', keyword: '' })
-  const [roleModalOpen, setRoleModalOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<UserInfo | null>(null)
-  const [roleForm] = Form.useForm()
-  const [submitting, setSubmitting] = useState(false)
+  const { message } = App.useApp()
+  const [activeTab, setActiveTab] = useState('users')
+  const [pendingCount, setPendingCount] = useState(0)
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true)
+  const [users, setUsers] = useState<UserInfo[]>([])
+  const [userTotal, setUserTotal] = useState(0)
+  const [userLoading, setUserLoading] = useState(false)
+  const [userPage, setUserPage] = useState(1)
+  const [userKeyword, setUserKeyword] = useState('')
+
+  const [agents, setAgents] = useState<AgentInfo[]>([])
+  const [agentTotal, setAgentTotal] = useState(0)
+  const [agentLoading, setAgentLoading] = useState(false)
+  const [agentPage, setAgentPage] = useState(1)
+  const [agentKeyword, setAgentKeyword] = useState('')
+
+  const [apps, setApps] = useState<AgentApplication[]>([])
+  const [appLoading, setAppLoading] = useState(false)
+
+  const loadUsers = useCallback(async () => {
+    setUserLoading(true)
     try {
-      const res = await userApi.list(params)
-      if (res.data) {
-        setUsers(res.data.list || [])
-        setTotal(res.data.total || 0)
-      }
-    } catch {
-      message.error('获取用户列表失败')
-    } finally {
-      setLoading(false)
-    }
-  }, [params])
+      const res: any = await userApi.list({ page: userPage, pageSize: 20, keyword: userKeyword })
+      setUsers(res?.list || [])
+      setUserTotal(res?.total || 0)
+    } catch { message.error('获取用户列表失败') }
+    finally { setUserLoading(false) }
+  }, [userPage, userKeyword])
+
+  const loadAgents = useCallback(async () => {
+    setAgentLoading(true)
+    try {
+      const res: any = await agentApi.list({ page: agentPage, pageSize: 20, keyword: agentKeyword })
+      setAgents(res?.list || [])
+      setAgentTotal(res?.total || 0)
+    } catch { message.error('获取代理列表失败') }
+    finally { setAgentLoading(false) }
+  }, [agentPage, agentKeyword])
+
+  const loadApps = useCallback(async () => {
+    setAppLoading(true)
+    try {
+      const res: any = await userApi.listApplications()
+      const list = res?.list || []
+      setApps(list)
+      setPendingCount(list.filter((a: AgentApplication) => a.status === 'pending').length)
+    } catch { message.error('获取审批列表失败') }
+    finally { setAppLoading(false) }
+  }, [])
 
   useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
+    if (activeTab === 'users') loadUsers()
+    else if (activeTab === 'agents') loadAgents()
+    else if (activeTab === 'applications') loadApps()
+  }, [activeTab, loadUsers, loadAgents, loadApps])
 
-  const handleSearch = (keyword: string) => {
-    setParams((prev) => ({ ...prev, keyword, page: 1 }))
-  }
+  useEffect(() => { loadApps() }, [])
 
-  const handleRoleFilter = (role: string) => {
-    setParams((prev) => ({ ...prev, role, page: 1 }))
-  }
-
-  const handlePageChange = (page: number, pageSize: number) => {
-    setParams((prev) => ({ ...prev, page, pageSize }))
-  }
-
-  const openRoleModal = (user: UserInfo) => {
-    setCurrentUser(user)
-    roleForm.setFieldsValue({
-      role: user.role,
-      agentLevel: user.agentLevel ?? 1,
-      remark: '',
-    })
-    setRoleModalOpen(true)
-  }
-
-  const handleRoleSubmit = async () => {
-    if (!currentUser) return
+  const handleSetAgent = async (record: UserInfo) => {
     try {
-      const values = await roleForm.validateFields()
-      setSubmitting(true)
-      await userApi.updateRole(currentUser.id, {
-        role: values.role,
-        agentLevel: values.role === 'agent' ? values.agentLevel : null,
-        parentUserId: null,
-        remark: values.remark || '',
-      })
-      message.success('角色更新成功')
-      setRoleModalOpen(false)
-      fetchUsers()
-    } catch {
-      message.error('角色更新失败')
-    } finally {
-      setSubmitting(false)
-    }
+      await userApi.updateRole(record.id, { role: 'agent', remark: '管理员手动设为代理' })
+      message.success(`已将 ${record.nickname} 设为代理`)
+      loadUsers()
+      loadAgents()
+    } catch { message.error('操作失败') }
   }
 
-  const columns = [
+  const handleToggleAgent = async (record: AgentInfo) => {
+    const newStatus = record.status === 1 ? 2 : 1
+    try {
+      await agentApi.updateStatus(record.id, newStatus)
+      message.success(`${record.username} 已${newStatus === 1 ? '启用' : '禁用'}`)
+      loadAgents()
+    } catch { message.error('操作失败') }
+  }
+
+  const handleReview = async (record: AgentApplication, approved: boolean) => {
+    try {
+      await userApi.reviewApplication(record.id, { approved, rejectReason: approved ? '' : '管理员驳回' })
+      message.success(approved ? '已通过' : '已驳回')
+      loadApps()
+      if (approved) loadAgents()
+    } catch { message.error('审批失败') }
+  }
+
+  const userColumns: ColumnsType<UserInfo> = [
     {
-      title: '用户',
-      key: 'user',
-      width: 240,
-      render: (_: unknown, record: UserInfo) => (
+      title: '用户', key: 'user', render: (_, r) => (
         <Space>
-          <Avatar src={record.avatar || undefined} icon={<UserOutlined />} />
-          <div>
-            <div>{record.nickname}</div>
-            <Text type="secondary" style={{ fontSize: 12 }}>{record.openId?.slice(0, 16)}...</Text>
-          </div>
+          <Avatar src={r.avatar} size="small">{r.nickname?.[0]}</Avatar>
+          <span>{r.nickname || '-'}</span>
         </Space>
+      )
+    },
+    {
+      title: '角色', dataIndex: 'role', key: 'role',
+      render: (v: string) => <Tag color={v === 'agent' ? 'blue' : 'default'}>{v === 'agent' ? '代理' : '普通用户'}</Tag>
+    },
+    { title: '最后登录', dataIndex: 'lastLoginAt', key: 'lastLoginAt', render: (v: string) => v ? new Date(v).toLocaleString() : '-' },
+    {
+      title: '操作', key: 'action',
+      render: (_, r) => r.role !== 'agent' ? (
+        <Popconfirm title={`确定将 ${r.nickname} 设为代理？`} onConfirm={() => handleSetAgent(r)}>
+          <Button type="link" size="small">设为代理</Button>
+        </Popconfirm>
+      ) : <span style={{ color: '#999' }}>已是代理</span>
+    },
+  ]
+
+  const agentColumns: ColumnsType<AgentInfo> = [
+    {
+      title: '代理', key: 'agent', render: (_, r) => (
+        <div>
+          <div>{r.username}</div>
+          <div style={{ fontSize: 12, color: '#999' }}>{r.realName || '-'}</div>
+        </div>
+      )
+    },
+    { title: '余额', dataIndex: 'balance', key: 'balance', render: (v: string) => <span style={{ color: '#3E6AE1', fontWeight: 600 }}>¥ {v}</span> },
+    {
+      title: '状态', dataIndex: 'status', key: 'status',
+      render: (v: number) => <Tag color={v === 1 ? 'green' : 'red'}>{v === 1 ? '正常' : '禁用'}</Tag>
+    },
+    { title: '微信', dataIndex: 'wechatBound', key: 'wechatBound', render: (v: boolean) => v ? <Tag color="green">已绑定</Tag> : <Tag>未绑定</Tag> },
+    {
+      title: '操作', key: 'action',
+      render: (_, r) => (
+        <Popconfirm title={`确定${r.status === 1 ? '禁用' : '启用'} ${r.username}？`} onConfirm={() => handleToggleAgent(r)}>
+          <Button type="link" size="small" danger={r.status === 1}>{r.status === 1 ? '禁用' : '启用'}</Button>
+        </Popconfirm>
+      )
+    },
+  ]
+
+  const appColumns: ColumnsType<AgentApplication> = [
+    {
+      title: '申请人', key: 'applicant', render: (_, r) => r.applicant ? (
+        <Space>
+          <Avatar src={r.applicant.avatar} size="small">{r.applicant.nickname?.[0]}</Avatar>
+          <span>{r.applicant.nickname || '-'}</span>
+        </Space>
+      ) : '-'
+    },
+    {
+      title: '邀请人', key: 'inviter', render: (_, r) => r.inviter ? (
+        <Space>
+          <Avatar src={r.inviter.avatar} size="small">{r.inviter.nickname?.[0]}</Avatar>
+          <span>{r.inviter.nickname || '-'}</span>
+        </Space>
+      ) : <span style={{ color: '#999' }}>自然流量</span>
+    },
+    { title: '邀请码', dataIndex: 'inviteCode', key: 'inviteCode', render: (v: string) => v || '-' },
+    {
+      title: '状态', dataIndex: 'status', key: 'status',
+      render: (v: string) => {
+        if (v === 'pending') return <Tag color="blue">待审核</Tag>
+        if (v === 'approved') return <Tag color="green">已通过</Tag>
+        return <Tag color="red">已驳回</Tag>
+      }
+    },
+    { title: '提交时间', dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => v ? new Date(v).toLocaleString() : '-' },
+    {
+      title: '操作', key: 'action',
+      render: (_, r) => r.status === 'pending' ? (
+        <Space>
+          <Popconfirm title="确定通过？" onConfirm={() => handleReview(r, true)}>
+            <Button type="link" size="small">通过</Button>
+          </Popconfirm>
+          <Popconfirm title="确定驳回？" onConfirm={() => handleReview(r, false)}>
+            <Button type="link" size="small" danger>驳回</Button>
+          </Popconfirm>
+        </Space>
+      ) : '-'
+    },
+  ]
+
+  const tabItems = [
+    {
+      key: 'users',
+      label: '全部用户',
+      children: (
+        <>
+          <Input.Search placeholder="搜索昵称" allowClear style={{ width: 280, marginBottom: 16 }}
+            onSearch={v => { setUserKeyword(v); setUserPage(1) }} />
+          <Table columns={userColumns} dataSource={users} rowKey="id" loading={userLoading}
+            pagination={{ current: userPage, pageSize: 20, total: userTotal, showSizeChanger: false, showTotal: t => `共 ${t} 条`,
+              onChange: p => setUserPage(p) }} />
+        </>
       ),
     },
     {
-      title: '角色',
-      dataIndex: 'role',
-      key: 'role',
-      width: 140,
-      render: (role: string, record: UserInfo) => {
-        if (role === 'agent') {
-          return <Tag color="green">{record.agentLevelName || '代理商'}</Tag>
-        }
-        return <Tag>普通用户</Tag>
-      },
+      key: 'agents',
+      label: '代理列表',
+      children: (
+        <>
+          <Input.Search placeholder="搜索用户名" allowClear style={{ width: 280, marginBottom: 16 }}
+            onSearch={v => { setAgentKeyword(v); setAgentPage(1) }} />
+          <Table columns={agentColumns} dataSource={agents} rowKey="id" loading={agentLoading}
+            pagination={{ current: agentPage, pageSize: 20, total: agentTotal, showSizeChanger: false, showTotal: t => `共 ${t} 条`,
+              onChange: p => setAgentPage(p) }} />
+        </>
+      ),
     },
     {
-      title: '手机号',
-      dataIndex: 'mobile',
-      key: 'mobile',
-      width: 140,
-      render: (v: string) => v || '-',
-    },
-    {
-      title: '最后登录',
-      dataIndex: 'lastLoginAt',
-      key: 'lastLoginAt',
-      width: 180,
-      render: (v: string) => (v ? new Date(v).toLocaleString('zh-CN') : '-'),
-    },
-    {
-      title: '操作',
-      key: 'action',
-      width: 120,
-      render: (_: unknown, record: UserInfo) => (
-        <Button type="link" size="small" onClick={() => openRoleModal(record)}>
-          {record.role === 'agent' ? '修改角色' : '设为代理'}
-        </Button>
+      key: 'applications',
+      label: <Badge count={pendingCount} offset={[10, 0]} size="small"><span style={{ paddingRight: 8 }}>入驻审批</span></Badge>,
+      children: (
+        <Table columns={appColumns} dataSource={apps} rowKey="id" loading={appLoading} pagination={false} />
       ),
     },
   ]
 
-  return (
-    <div>
-      <Card
-        title="用户管理"
-        extra={
-          <Space>
-            <Select
-              value={params.role}
-              options={ROLE_OPTIONS}
-              onChange={handleRoleFilter}
-              style={{ width: 120 }}
-            />
-            <Input.Search
-              placeholder="搜索昵称/openId/手机号"
-              allowClear
-              onSearch={handleSearch}
-              style={{ width: 260 }}
-              prefix={<SearchOutlined />}
-            />
-          </Space>
-        }
-      >
-        <Table
-          rowKey="id"
-          loading={loading}
-          dataSource={users}
-          columns={columns}
-          pagination={{
-            current: params.page,
-            pageSize: params.pageSize,
-            total,
-            showSizeChanger: true,
-            showTotal: (t) => `共 ${t} 条`,
-            onChange: handlePageChange,
-          }}
-        />
-      </Card>
-
-      <Modal
-        title={currentUser ? `修改角色 - ${currentUser.nickname}` : '修改角色'}
-        open={roleModalOpen}
-        onCancel={() => setRoleModalOpen(false)}
-        onOk={handleRoleSubmit}
-        confirmLoading={submitting}
-        okText="确认"
-        cancelText="取消"
-      >
-        <Form form={roleForm} layout="vertical" style={{ marginTop: 16 }}>
-          <Form.Item name="role" label="角色" rules={[{ required: true }]}>
-            <Select
-              options={[
-                { label: '普通用户', value: 'user' },
-                { label: '代理商', value: 'agent' },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item noStyle shouldUpdate={(prev, cur) => prev.role !== cur.role}>
-            {({ getFieldValue }) =>
-              getFieldValue('role') === 'agent' ? (
-                <Form.Item name="agentLevel" label="代理等级" rules={[{ required: true }]}>
-                  <Select options={AGENT_LEVEL_OPTIONS} />
-                </Form.Item>
-              ) : null
-            }
-          </Form.Item>
-
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={2} placeholder="可选，记录变更原因" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
-  )
+  return <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
 }

@@ -1,0 +1,49 @@
+<view class="transfer-page">
+  <view class="form-card">
+    <view class="form-title">查询旧站余额</view>
+    <view class="form-desc">输入旧代理站账号密码，查询对应余额</view>
+
+    <view class="input-group">
+      <input class="input-field" placeholder="旧站账号" value="{{ username }}" bindinput="onUsernameInput" />
+    </view>
+    <view class="input-group">
+      <input class="input-field" placeholder="旧站密码" password value="{{ password }}" bindinput="onPasswordInput" />
+    </view>
+
+    <button class="query-btn" bindtap="onQuery" loading="{{ queryLoading }}" disabled="{{ confirmLoading }}">查询余额</button>
+
+    <view class="hint-text">仅用于本次查询，不会保存您的账号密码</view>
+  </view>
+
+  <!-- 查询结果 -->
+  <view class="result-card" wx:if="{{ result }}">
+    <view class="result-row">
+      <text class="result-label">旧站账号</text>
+      <text class="result-value">{{ result.legacyUsername }}</text>
+    </view>
+    <view class="result-divider"></view>
+    <view class="result-row">
+      <text class="result-label">代理身份</text>
+      <text class="result-value result-agent-type {{ result.svipRemainingDays > 0 ? 'vip' : '' }}">{{ result.agentType }}</text>
+    </view>
+    <view class="result-divider"></view>
+    <view class="result-row" wx:if="{{ result.svipRemainingDays > 0 }}">
+      <text class="result-label">VIP剩余</text>
+      <text class="result-value">{{ result.svipRemainingDays }} 天</text>
+    </view>
+    <view class="result-divider" wx:if="{{ result.svipRemainingDays > 0 }}"></view>
+    <view class="result-row">
+      <text class="result-label">账户余额</text>
+      <text class="result-value result-balance">¥ {{ result.balance }}</text>
+    </view>
+
+    <view class="transfer-actions" wx:if="{{ !transferred }}">
+      <button class="confirm-btn" bindtap="onConfirmTransfer" loading="{{ confirmLoading }}" disabled="{{ confirmLoading || queryLoading }}">确认转移到新站</button>
+    </view>
+
+    <view class="success-box" wx:if="{{ transferred }}">
+      <view class="success-title">已转移成功</view>
+      <view class="success-desc">旧站账号已进入禁用流程，请以后在新站使用。</view>
+    </view>
+  </view>
+</view>

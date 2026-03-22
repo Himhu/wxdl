@@ -3,7 +3,7 @@
   <skeleton loading="{{ loading }}" count="4" />
 
   <block wx:if="{{ !loading }}">
-    <!-- 代理列表 -->
+    <!-- 邀请记录列表 -->
     <view class="proxy-list" wx:if="{{ proxyList.length > 0 }}">
       <view
         class="proxy-item"
@@ -12,27 +12,24 @@
         hover-class="proxy-item--active"
         hover-stay-time="80"
       >
-        <!-- 头部：头像 + 名称 + 等级 -->
         <view class="proxy-header">
-          <view class="avatar">{{ item.name[0] || '?' }}</view>
+          <view class="avatar">
+            <image wx:if="{{ item.avatar }}" class="avatar-img" src="{{ item.avatar }}" mode="aspectFill" />
+            <text wx:else>{{ item.avatarText }}</text>
+          </view>
           <view class="proxy-info">
             <view class="name-row">
               <text class="proxy-name">{{ item.name }}</text>
-              <view class="level-tag level-{{ item.level }}">{{ item.levelName }}</view>
+              <view class="status-tag status-{{ item.status }}">{{ item.statusText }}</view>
             </view>
+            <view class="invite-meta">邀请码：{{ item.inviteCode }}</view>
           </view>
         </view>
 
-        <!-- 指标面板 -->
-        <view class="metrics">
+        <view class="metrics single-metric">
           <view class="metric-cell">
-            <text class="metric-label">卡密数</text>
-            <text class="metric-value num-font">{{ item.totalCards }}</text>
-          </view>
-          <view class="metric-divider"></view>
-          <view class="metric-cell">
-            <text class="metric-label">积分余额</text>
-            <text class="metric-value num-font">{{ item.balance }}</text>
+            <text class="metric-label">申请时间</text>
+            <text class="metric-value metric-value-time">{{ item.displayTime }}</text>
           </view>
         </view>
       </view>
@@ -42,8 +39,8 @@
     <empty-state
       wx:if="{{ !proxyList.length }}"
       icon="○"
-      text="暂无下级代理"
-      hint="发展下级代理后将显示在这里"
+      text="暂无邀请记录"
+      hint="邀请好友后会显示在这里"
     />
 
     <!-- 分页加载 -->

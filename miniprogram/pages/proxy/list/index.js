@@ -1,4 +1,4 @@
-const config = require('../../../config/index')
+const authApi = require('../../../api/auth')
 
 Page({
   data: {
@@ -15,25 +15,35 @@ Page({
     this._loadList(() => wx.stopPullDownRefresh())
   },
 
-  onReachBottom() {
-    if (this.data.hasMore) {
-      // TODO: 分页加载
-    }
-  },
-
   _loadList(cb) {
-    if (this.data.loading && this.data.proxyList.length) return
     this.setData({ loading: true })
-    setTimeout(() => {
-      this.setData({
-        loading: false,
-        proxyList: [
-          { id: 1, name: '张三', level: 1, levelName: '一级代理', totalCards: 156, balance: 3200 },
-          { id: 2, name: '李四', level: 2, levelName: '二级代理', totalCards: 89, balance: 1500 },
-          { id: 3, name: '王五', level: 2, levelName: '二级代理', totalCards: 42, balance: 800 }
-        ]
+    authApi.getCurrentInvite()
+      .then((res) => {
+        const records = (res.records || []).map((item) => {
+          const name = item.applicant.nickname || '微信用户'
+          return {
+            id: item.id,
+            name,
+            avatar: item.applicant.avatar || '',
+            avatarText: name.slice(0, 1) || '?',
+            status: item.status,
+            statusText: item.status === 'approved' ? '已开通' : item.status === 'rejected' ? '已驳回' : '待审核',
+            createdAt: item.createdAt,
+            inviteCode: item.inviteCode || '-',
+            displayTime: item.createdAt || '-'
+          }
+        })
+        this.setData({
+          loading: false,
+          proxyList: records,
+          hasMore: false
+        })
+        cb && cb()
       })
-      cb && cb()
-    }, 500)
+      .catch((err) => {
+        this.setData({ loading: false })
+        wx.showToast({ title: err.message || '加载失败', icon: 'none' })
+        cb && cb()
+      })
   }
 })

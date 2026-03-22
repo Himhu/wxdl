@@ -1,0 +1,24 @@
+<view class="invite-page">
+  <view class="poster-container">
+    <image
+      wx:if="{{ posterUrl }}"
+      class="poster-image"
+      src="{{ posterUrl }}"
+      mode="aspectFit"
+      show-menu-by-longpress="{{ true }}"
+    />
+    <view wx:else class="poster-skeleton"></view>
+  </view>
+
+  <view class="action-bar">
+    <button class="btn btn-secondary" bindtap="onSavePoster">保存海报</button>
+    <button class="btn btn-primary" open-type="share">分享给好友</button>
+  </view>
+
+  <canvas
+    id="posterCanvas"
+    type="2d"
+    class="poster-canvas"
+    style="width: {{posterWidth}}px; height: {{posterHeight}}px;"
+  ></canvas>
+</view>

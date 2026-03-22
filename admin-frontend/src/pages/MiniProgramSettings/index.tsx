@@ -14,7 +14,7 @@ export default function MiniProgramSettings() {
     setLoading(true);
     try {
       const res = await miniProgramConfigApi.list();
-      setConfigs(res.data);
+      setConfigs(Array.isArray(res) ? res : []);
     } catch (error) {
       message.error('加载配置失败');
     } finally {

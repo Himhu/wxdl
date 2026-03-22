@@ -13,29 +13,87 @@ Page({
 
   data: {
     isAgent: false,
-    menuList: [
-      { title: '下级代理', url: '/pages/proxy/list/index', icon: '◆', agentOnly: true },
-      { title: '充值记录', url: '/pages/finance/records/index', icon: '◇', agentOnly: true },
-      { title: '操作日志', url: '/pages/logs/index', icon: '☰', agentOnly: false }
-    ]
+    hasPendingApplication: false,
+    hasShownApprovedToast: false,
+    inviteCode: '',
+    displayNickname: '微信用户',
+    displayAvatarText: '?',
+    roleTagClass: 'role-user',
+    roleText: '普通用户',
+    menuList: []
   },
 
   onShow() {
     this._refreshRole()
   },
 
+  _buildMenuList(isAgent) {
+    return [
+      {
+        title: '我的下级',
+        url: '/pages/proxy/list/index',
+        iconText: '◆',
+        agentOnly: true,
+        showLock: !isAgent,
+        itemClass: !isAgent ? 'menu-item-disabled' : ''
+      },
+      {
+        title: '数据转移',
+        url: '/pages/transfer/index',
+        iconText: '⇄',
+        agentOnly: false,
+        showLock: false,
+        itemClass: ''
+      },
+      {
+        title: '充值记录',
+        url: '/pages/finance/records/index',
+        iconText: '◇',
+        agentOnly: true,
+        showLock: !isAgent,
+        itemClass: !isAgent ? 'menu-item-disabled' : ''
+      }
+    ]
+  },
+
   async _refreshRole() {
     try {
+      const prevIsAgent = this.data.isAgent
       const res = await authApi.refreshUserInfo()
       if (res.userInfo) {
+        const nickname = res.userInfo.nickname || '微信用户'
         this.updateUserInfo(res.userInfo)
-        this.setData({ isAgent: res.userInfo.role === 'agent' })
+        const isAgent = res.userInfo.role === 'agent'
+        const hasPendingApplication = !!res.pendingApplication
+        this.setData({
+          isAgent,
+          hasPendingApplication,
+          inviteCode: res.inviteCode || '',
+          displayNickname: nickname,
+          displayAvatarText: nickname.slice(0, 1) || '?',
+          roleTagClass: isAgent ? 'role-agent' : 'role-user',
+          roleText: isAgent ? '代理商' : (hasPendingApplication ? '待审核' : '普通用户'),
+          menuList: this._buildMenuList(isAgent)
+        })
+
+        if (!prevIsAgent && isAgent && !this.data.hasShownApprovedToast) {
+          this.setData({ hasShownApprovedToast: true })
+          wx.showToast({ title: '恭喜，代理申请已通过', icon: 'success' })
+        }
       }
     } catch (err) {
       console.error('刷新角色失败', err)
-      // 降级使用本地缓存
       const userInfo = this.data.userInfo
-      this.setData({ isAgent: !!(userInfo && userInfo.role === 'agent') })
+      const isAgent = !!(userInfo && userInfo.role === 'agent')
+      const nickname = (userInfo && userInfo.nickname) || '微信用户'
+      this.setData({
+        isAgent,
+        displayNickname: nickname,
+        displayAvatarText: nickname.slice(0, 1) || '?',
+        roleTagClass: isAgent ? 'role-agent' : 'role-user',
+        roleText: isAgent ? '代理商' : '普通用户',
+        menuList: this._buildMenuList(isAgent)
+      })
     }
   },
 
@@ -55,28 +113,37 @@ Page({
     wx.navigateTo({ url })
   },
 
-  // Mock: 测试用 — 模拟管理员提升为代理
-  async onMockPromote() {
-    try {
-      const res = await authApi.mockPromoteToAgent(this.data.userInfo.id, 1)
-      this.updateUserInfo(res.userInfo)
-      this.setData({ isAgent: true })
-      wx.showToast({ title: '已提升为代理', icon: 'success' })
-    } catch (err) {
-      wx.showToast({ title: err.message, icon: 'none' })
+  onApplyAgent() {
+    if (this.data.hasPendingApplication) {
+      wx.showToast({ title: '已提交申请，待审核', icon: 'none' })
+      return
     }
+
+    wx.showModal({
+      title: '申请成为代理',
+      content: '将提交代理申请，请等待管理员审核。',
+      success: async (res) => {
+        if (!res.confirm) return
+        try {
+          const pendingInviteCode = wx.getStorageSync('pendingInviteCode') || ''
+          await authApi.applyAgent({ inviteCode: pendingInviteCode })
+          if (pendingInviteCode) {
+            wx.removeStorageSync('pendingInviteCode')
+          }
+          this.setData({
+            hasPendingApplication: true,
+            roleText: '待审核'
+          })
+          wx.showToast({ title: '提交成功，待审核', icon: 'success' })
+        } catch (err) {
+          wx.showToast({ title: err.message || '提交失败', icon: 'none' })
+        }
+      }
+    })
   },
 
-  // Mock: 测试用 — 模拟降级为普通用户
-  async onMockDemote() {
-    try {
-      const res = await authApi.mockDemoteToUser(this.data.userInfo.id)
-      this.updateUserInfo(res.userInfo)
-      this.setData({ isAgent: false })
-      wx.showToast({ title: '已降为普通用户', icon: 'success' })
-    } catch (err) {
-      wx.showToast({ title: err.message, icon: 'none' })
-    }
+  onInviteAgent() {
+    wx.navigateTo({ url: '/pages/invite/index' })
   },
 
   onLogout() {

@@ -1,7 +1,7 @@
 // 全局配置
 module.exports = {
   // API 基础地址（后续对接时修改）
-  API_BASE_URL: 'http://localhost:8080',
+  API_BASE_URL: 'http://192.168.1.20:8080',
 
   // 站点配置
   SITES: [
@@ -39,12 +39,4 @@ module.exports = {
     USER: { value: 'user', label: '普通用户' },
     AGENT: { value: 'agent', label: '代理商' }
   },
-
-  // 代理层级枚举
-  AGENT_LEVEL: {
-    SUPER: { value: 0, label: '总代理' },
-    LEVEL_1: { value: 1, label: '一级代理' },
-    LEVEL_2: { value: 2, label: '二级代理' },
-    LEVEL_3: { value: 3, label: '三级代理' }
-  }
 }

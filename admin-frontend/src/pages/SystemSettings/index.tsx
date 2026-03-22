@@ -1,109 +1,221 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Card, Form, Input, Button, Space, Alert, App } from 'antd';
+import {
+  Card, Form, Input, Button, App, Switch, Select, Row, Col, Flex, Tabs, Typography, Divider, Tag, Space
+} from 'antd';
+import { InfoCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { systemSettingApi } from '../../api/systemSetting';
-import type { WeChatSettings } from '../../api/systemSetting';
+import type { WeChatSettings, ObjectStorageSettings } from '../../api/systemSetting';
+
+const { Text, Title } = Typography;
 
 export default function SystemSettings() {
   const { message } = App.useApp();
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [settings, setSettings] = useState<WeChatSettings | null>(null);
+  const [wcForm] = Form.useForm();
+  const [ossForm] = Form.useForm();
+  const [wcLoading, setWcLoading] = useState(false);
+  const [ossLoading, setOssLoading] = useState(false);
+  const [wcSettings, setWcSettings] = useState<WeChatSettings | null>(null);
+  const [ossSettings, setOssSettings] = useState<ObjectStorageSettings | null>(null);
+  const [ossEnabled, setOssEnabled] = useState(false);
 
-  const loadSettings = useCallback(async () => {
+  const loadWcSettings = useCallback(async () => {
     try {
-      const res = await systemSettingApi.getWeChatSettings();
-      setSettings(res.data);
-      form.setFieldsValue({
-        appId: res.data.appId,
+      const res: any = await systemSettingApi.getWeChatSettings();
+      setWcSettings(res);
+      wcForm.setFieldsValue({ appId: res?.appId });
+    } catch { message.error('加载微信配置失败') }
+  }, [wcForm, message]);
+
+  const loadOssSettings = useCallback(async () => {
+    try {
+      const res: any = await systemSettingApi.getObjectStorageSettings();
+      setOssSettings(res);
+      setOssEnabled(!!res?.enabled);
+      ossForm.setFieldsValue({
+        provider: res?.provider || 'aliyun-oss',
+        endpoint: res?.endpoint,
+        bucket: res?.bucket,
+        accessKeyId: res?.accessKeyId,
+        region: res?.region,
+        customDomain: res?.customDomain,
+        pathPrefix: res?.pathPrefix,
       });
-    } catch {
-      message.error('加载配置失败');
-    }
-  }, [form, message]);
+    } catch { message.error('加载对象存储配置失败') }
+  }, [ossForm, message]);
+
+  const [activeTab, setActiveTab] = useState('wechat');
+  const ossLoaded = useState(false);
+
+  useEffect(() => { loadWcSettings(); }, [loadWcSettings]);
 
   useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
-
-  const handleSubmit = async (values: { appId: string; appSecret: string; changeNote?: string }) => {
-    setLoading(true);
-    try {
-      await systemSettingApi.updateWeChatSettings({
-        appId: values.appId,
-        appSecret: values.appSecret,
-        changeNote: values.changeNote,
-      });
-      message.success('配置更新成功，已立即生效');
-      form.resetFields(['appSecret', 'changeNote']);
-      await loadSettings();
-    } catch {
-      message.error('配置更新失败');
-    } finally {
-      setLoading(false);
+    if (activeTab === 'oss' && !ossLoaded[0]) {
+      loadOssSettings();
+      ossLoaded[1](true);
     }
+  }, [activeTab]);
+
+  const handleWcSubmit = async (values: { appId: string; appSecret: string; changeNote?: string }) => {
+    setWcLoading(true);
+    try {
+      await systemSettingApi.updateWeChatSettings(values);
+      message.success('微信配置已更新');
+      wcForm.resetFields(['appSecret', 'changeNote']);
+      await loadWcSettings();
+    } catch { message.error('更新失败') }
+    finally { setWcLoading(false) }
   };
 
-  return (
-    <div>
-      <Card title="系统设置">
-        <Alert
-          message="安全提示"
-          description="AppSecret 将加密存储在数据库中，配置更新后立即生效，无需重启服务。"
-          type="info"
-          showIcon
-          style={{ marginBottom: 24 }}
-        />
+  const handleOssSubmit = async (values: any) => {
+    setOssLoading(true);
+    try {
+      await systemSettingApi.updateObjectStorageSettings({
+        enabled: ossEnabled,
+        provider: values.provider || 'aliyun-oss',
+        endpoint: values.endpoint || '',
+        bucket: values.bucket || '',
+        accessKeyId: values.accessKeyId || '',
+        secretKey: values.secretKey || '',
+        region: values.region || '',
+        customDomain: values.customDomain || '',
+        pathPrefix: values.pathPrefix || '',
+        changeNote: values.changeNote,
+      });
+      message.success('对象存储配置已更新');
+      ossForm.resetFields(['secretKey', 'changeNote']);
+      await loadOssSettings();
+    } catch { message.error('更新失败') }
+    finally { setOssLoading(false) }
+  };
 
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          style={{ maxWidth: 600 }}
-        >
-          <Form.Item
-            label="微信小程序 AppID"
-            name="appId"
-            rules={[{ required: true, message: '请输入 AppID' }]}
-          >
-            <Input placeholder="wx..." />
-          </Form.Item>
-
-          <Form.Item
-            label="微信小程序 AppSecret"
-            name="appSecret"
-            rules={[{ required: true, message: '请输入 AppSecret' }]}
-            extra={settings?.secretMasked ? `当前密钥：${settings.secretMasked}` : ''}
-          >
-            <Input.Password placeholder="输入新的 AppSecret" />
-          </Form.Item>
-
-          <Form.Item
-            label="变更说明"
-            name="changeNote"
-          >
-            <Input.TextArea rows={2} placeholder="可选，记录本次变更的原因" />
-          </Form.Item>
-
-          <Form.Item>
+  const wechatTab = (
+    <div style={{ maxWidth: 560, paddingTop: 16 }}>
+      <Form form={wcForm} layout="vertical" onFinish={handleWcSubmit}>
+        <Form.Item label="AppID" name="appId" rules={[{ required: true, message: '请输入 AppID' }]}>
+          <Input placeholder="wx..." size="large" />
+        </Form.Item>
+        <Form.Item
+          label={
             <Space>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                保存配置
-              </Button>
-              <Button onClick={() => form.resetFields()}>
-                重置
-              </Button>
+              AppSecret
+              <Text type="secondary" style={{ fontSize: 12, fontWeight: 'normal' }}>
+                <InfoCircleOutlined style={{ marginRight: 4 }} />加密存储，更新后立即生效
+              </Text>
             </Space>
-          </Form.Item>
-        </Form>
-
-        {settings && (
-          <div style={{ marginTop: 24, padding: 16, background: '#f5f5f5', borderRadius: 4 }}>
-            <div><strong>配置来源：</strong>{settings.source === 'database' ? '数据库' : '环境变量'}</div>
-            <div><strong>配置版本：</strong>v{settings.version}</div>
-            <div><strong>最后更新：</strong>{new Date(settings.updatedAt).toLocaleString()}</div>
-          </div>
-        )}
-      </Card>
+          }
+          name="appSecret"
+          rules={[{ required: true, message: '请输入 AppSecret' }]}
+          extra={wcSettings?.secretMasked ? `当前密钥：${wcSettings.secretMasked}` : ''}
+        >
+          <Input.Password placeholder="输入新的 AppSecret" size="large" />
+        </Form.Item>
+        <Form.Item label="变更说明" name="changeNote">
+          <Input.TextArea rows={2} placeholder="简单记录修改原因（可选）" />
+        </Form.Item>
+        <Form.Item style={{ marginTop: 32 }}>
+          <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={wcLoading}>保存微信配置</Button>
+        </Form.Item>
+      </Form>
+      {wcSettings && (
+        <Flex gap={16} align="center" style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+          <Text type="secondary" style={{ fontSize: 13 }}>配置来源：<Tag variant="filled">{wcSettings.source === 'database' ? '数据库' : '环境变量'}</Tag></Text>
+          <Text type="secondary" style={{ fontSize: 13 }}>版本：v{wcSettings.version}</Text>
+          <Text type="secondary" style={{ fontSize: 13 }}>更新：{new Date(wcSettings.updatedAt).toLocaleString()}</Text>
+        </Flex>
+      )}
     </div>
+  );
+
+  const ossTab = (
+    <div style={{ paddingTop: 16 }}>
+      <Flex justify="space-between" align="center"
+        style={{ maxWidth: 800, marginBottom: 32, padding: '16px 20px', background: '#fafafa', borderRadius: 8, border: '1px solid #f0f0f0' }}>
+        <Flex vertical gap={4}>
+          <Text strong style={{ fontSize: 15 }}>启用对象存储</Text>
+          <Text type="secondary" style={{ fontSize: 13 }}>开启后，小程序上传的头像、海报等资源将存储至对象存储服务并获得永久加速链接。</Text>
+        </Flex>
+        <Switch checked={ossEnabled} onChange={setOssEnabled} />
+      </Flex>
+
+      <Form form={ossForm} layout="vertical" onFinish={handleOssSubmit} disabled={!ossEnabled} style={{ maxWidth: 800 }}>
+        <Title level={5} style={{ marginTop: 0, marginBottom: 16, fontSize: 14 }}>基础配置</Title>
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="存储提供商" name="provider">
+              <Select options={[
+                { label: '雨云 ROS (S3兼容)', value: 'rainyun-ros' },
+                { label: '阿里云 OSS', value: 'aliyun-oss' },
+                { label: '腾讯云 COS', value: 'tencent-cos' },
+                { label: 'MinIO', value: 'minio' },
+              ]} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="存储区域 (Region)" name="region">
+              <Input placeholder="例如：oss-cn-hangzhou" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="存储空间 (Bucket)" name="bucket" rules={[{ required: ossEnabled, message: '请输入 Bucket' }]}>
+              <Input placeholder="输入 Bucket 名称" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="访问节点 (Endpoint)" name="endpoint" rules={[{ required: ossEnabled, message: '请输入 Endpoint' }]}>
+              <Input placeholder="例如：oss-cn-hangzhou.aliyuncs.com" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Divider dashed style={{ margin: '12px 0 24px' }} />
+        <Title level={5} style={{ marginBottom: 16, fontSize: 14 }}>访问密钥</Title>
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="AccessKey ID" name="accessKeyId" rules={[{ required: ossEnabled, message: '请输入 AK' }]}>
+              <Input placeholder="输入访问密钥 ID" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="AccessKey Secret" name="secretKey"
+              extra={ossSettings?.secretKeyMasked ? `当前密钥：${ossSettings.secretKeyMasked}` : ''}>
+              <Input.Password placeholder="输入访问密钥 Secret" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Divider dashed style={{ margin: '12px 0 24px' }} />
+        <Title level={5} style={{ marginBottom: 16, fontSize: 14 }}>高级设置 (可选)</Title>
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item label="自定义加速域名" name="customDomain">
+              <Input placeholder="例如：https://cdn.example.com" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="存储目录前缀" name="pathPrefix">
+              <Input placeholder="例如：uploads/images/" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Form.Item label="变更说明" name="changeNote">
+          <Input.TextArea rows={2} placeholder="简单记录修改原因（可选）" />
+        </Form.Item>
+        <Form.Item style={{ marginTop: 24 }}>
+          <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={ossLoading} disabled={!ossEnabled}>保存对象存储配置</Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+
+  return (
+    <Card variant="borderless" styles={{ body: { paddingTop: 12 } }}>
+      <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
+        { key: 'wechat', label: '微信小程序配置', children: wechatTab },
+        { key: 'oss', label: '对象存储 (OSS) 配置', children: ossTab },
+      ]} />
+    </Card>
   );
 }

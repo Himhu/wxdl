@@ -1,5 +1,5 @@
 import { Layout, Menu, Dropdown, Avatar, theme, Button } from 'antd';
-import { DashboardOutlined, UserOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
+import { DashboardOutlined, UserOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, CreditCardOutlined, WalletOutlined, SwapOutlined } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { brandColors } from '../theme';
@@ -45,8 +45,23 @@ export default function AdminLayout() {
             },
             {
               key: '/users',
-              icon: <TeamOutlined />,
+              icon: <UserOutlined />,
               label: <Link to="/users">用户管理</Link>,
+            },
+            {
+              key: '/cards',
+              icon: <CreditCardOutlined />,
+              label: <Link to="/cards">卡密管理</Link>,
+            },
+            {
+              key: '/finance',
+              icon: <WalletOutlined />,
+              label: <Link to="/finance">充值与积分</Link>,
+            },
+            {
+              key: '/transfer-records',
+              icon: <SwapOutlined />,
+              label: <Link to="/transfer-records">数据转移</Link>,
             },
             {
               key: '/mini-program',

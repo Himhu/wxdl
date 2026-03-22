@@ -3,7 +3,9 @@
     "pages/tabbar/home/index",
     "pages/tabbar/cards/index",
     "pages/tabbar/profile/index",
-    "pages/common/login/index"
+    "pages/common/login/index",
+    "pages/invite/index",
+    "pages/transfer/index"
   ],
   "subPackages": [
     {

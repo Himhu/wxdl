@@ -1,12 +1,24 @@
 const userStore = require('./store/user')
 
+function cacheInviteCode(options) {
+  const query = options && options.query ? options.query : {}
+  if (query.inviteCode) {
+    wx.setStorageSync('pendingInviteCode', query.inviteCode)
+  }
+}
+
 App({
-  onLaunch() {
+  onLaunch(options) {
     userStore.restoreLoginState()
-    console.log('小程序启动')
+    cacheInviteCode(options)
+  },
+
+  onShow(options) {
+    cacheInviteCode(options)
   },
 
   globalData: {
     version: '1.0.0'
   }
 })
+
