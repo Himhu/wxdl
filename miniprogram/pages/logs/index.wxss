@@ -1,59 +1,69 @@
-/* ==================== 操作日志页样式 ==================== */
 .logs-container {
   min-height: 100vh;
   background: var(--color-bg-page);
+  padding-top: var(--spacing-md);
   padding-bottom: var(--spacing-3xl);
+  box-sizing: border-box;
 }
 
-/* --- 头部 --- */
-.page-header {
-  padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-md);
-}
-
-.page-title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-/* --- Timeline 日志列表 --- */
 .log-list {
   padding: 0 var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .log-item {
   display: flex;
-  gap: var(--spacing-sm);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  gap: var(--spacing-md);
 }
 
-.timeline-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 6rpx;
-  flex-shrink: 0;
-  width: 24rpx;
+.log-item:active {
+  opacity: 0.85;
 }
 
-.timeline-dot {
-  width: 12rpx;
-  height: 12rpx;
+/* 图标区 */
+.log-icon-container {
+  width: 80rpx;
+  height: 80rpx;
   border-radius: 50%;
-  background: var(--color-brand-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.timeline-line {
-  width: 2rpx;
-  flex: 1;
-  background: var(--color-border-default);
-  margin-top: var(--spacing-2xs);
+.log-icon-text {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
 }
 
+.log-icon-container.type-login {
+  background: #EDF3FF;
+  color: #3E6AE1;
+}
+
+.log-icon-container.type-balance {
+  background: #FFF7ED;
+  color: #D97706;
+}
+
+.log-icon-container.type-default {
+  background: #F3F5F9;
+  color: #86909C;
+}
+
+/* 内容区 */
 .log-content {
   flex: 1;
-  padding-bottom: var(--spacing-xl);
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .log-action {
@@ -66,14 +76,14 @@
 .log-detail {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-xs);
   line-height: var(--line-height-relaxed);
+  word-break: break-all;
 }
 
 .log-footer {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
 }
 
 .log-time {
@@ -88,15 +98,17 @@
 
 .log-operator::before {
   content: '·';
-  margin-right: var(--spacing-xs);
+  margin: 0 var(--spacing-xs);
+  color: var(--color-border-default);
+  font-weight: bold;
 }
 
-/* --- 空态 --- */
+/* 空态 */
 .empty-container {
   padding-top: 120rpx;
 }
 
-/* --- 分页加载 --- */
+/* 分页加载 */
 .loading-more {
   display: flex;
   justify-content: center;

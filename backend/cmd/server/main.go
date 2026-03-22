@@ -105,7 +105,7 @@ func main() {
 	adminSystemSettingHandler := handler.NewAdminSystemSettingHandler(systemSettingService)
 	miniProgramConfigHandler := handler.NewMiniProgramConfigHandler(miniProgramConfigService)
 	adminAgentHandler := handler.NewAdminAgentHandler(agentRepository)
-	auditHandler := handler.NewAuditHandler(agentRepository, userRepository)
+	auditHandler := handler.NewAuditHandler(agentRepository, userRepository, db)
 	healthHandler := handler.NewHealthHandler(cfg)
 	userHandler := handler.NewUserHandler(userService, legacySiteService, legacyTransferService, wechatClient, cfg.JWT)
 	dashboardHandler := handler.NewDashboardHandler(db)

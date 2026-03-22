@@ -76,8 +76,8 @@ Page({
           menuList: this._buildMenuList(isAgent)
         })
 
-        if (!prevIsAgent && isAgent && !this.data.hasShownApprovedToast) {
-          this.setData({ hasShownApprovedToast: true })
+        if (!prevIsAgent && isAgent && !wx.getStorageSync('approvedToastShown')) {
+          wx.setStorageSync('approvedToastShown', true)
           wx.showToast({ title: '恭喜，代理申请已通过', icon: 'success' })
         }
       }

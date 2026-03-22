@@ -58,6 +58,7 @@ const userStore = observable({
     this.isLogin = false
     wx.removeStorageSync('token')
     wx.removeStorageSync('userInfo')
+    wx.removeStorageSync('approvedToastShown')
   }),
 
   logout: action(function() {
