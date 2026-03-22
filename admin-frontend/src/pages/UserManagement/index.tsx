@@ -120,8 +120,8 @@ export default function UserManagement() {
     {
       title: '代理', key: 'agent', render: (_, r) => (
         <div>
-          <div>{r.username}</div>
-          <div style={{ fontSize: 12, color: '#999' }}>{r.realName || '-'}</div>
+          <div>{r.realName || r.username}</div>
+          <div style={{ fontSize: 12, color: '#999' }}>{r.realName ? r.username : '-'}</div>
         </div>
       )
     },
