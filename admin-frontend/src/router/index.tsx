@@ -4,6 +4,7 @@ import AuditLogs from '../pages/AuditLogs';
 import CardManagement from '../pages/CardManagement';
 import DashboardPage from '../pages/Dashboard';
 import FinanceManagement from '../pages/FinanceManagement';
+import InviteRelations from '../pages/InviteRelations';
 import LoginPage from '../pages/Login';
 import MiniProgramSettings from '../pages/MiniProgramSettings';
 import SystemSettings from '../pages/SystemSettings';
@@ -35,6 +36,7 @@ export default function AppRouter() {
         >
           <Route index element={<DashboardPage />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="invite-relations" element={<InviteRelations />} />
           <Route path="cards" element={<CardManagement />} />
           <Route path="finance" element={<FinanceManagement />} />
           <Route path="transfer-records" element={<TransferRecords />} />

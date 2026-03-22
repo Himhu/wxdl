@@ -134,6 +134,7 @@ func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *C
 		adminUserGroup.GET("/:id", userHandler.AdminGetUser)
 		adminUserGroup.PUT("/:id/role", userHandler.AdminUpdateUserRole)
 		adminUserGroup.GET("/applications", userHandler.AdminListApplications)
+		adminUserGroup.GET("/invite-relations", userHandler.AdminListInviteRelations)
 		adminUserGroup.POST("/applications/:id/review", userHandler.AdminReviewApplication)
 
 		adminAgentGroup := adminGroup.Group("/agents")

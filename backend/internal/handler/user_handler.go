@@ -307,6 +307,66 @@ func (h *UserHandler) AdminListApplications(c *gin.Context) {
 	utils.Success(c, "ok", gin.H{"list": applications})
 }
 
+// AdminListInviteRelations 管理员查看邀请关系
+// GET /api/admin/users/invite-relations
+func (h *UserHandler) AdminListInviteRelations(c *gin.Context) {
+	status := c.Query("status")
+	keyword := c.Query("keyword")
+
+	applications, err := h.userService.ListApplications(c.Request.Context(), status)
+	if err != nil {
+		utils.Error(c, utils.InternalError(err))
+		return
+	}
+
+	// 按关键字过滤（邀请人或被邀请人昵称、邀请码）
+	var filtered []model.AgentApplicationListItem
+	for _, app := range applications {
+		if keyword != "" {
+			match := false
+			if contains(app.Applicant.Nickname, keyword) {
+				match = true
+			}
+			if app.Inviter != nil && contains(app.Inviter.Nickname, keyword) {
+				match = true
+			}
+			if contains(app.InviteCode, keyword) {
+				match = true
+			}
+			if !match {
+				continue
+			}
+		}
+		filtered = append(filtered, app)
+	}
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	total := len(filtered)
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	if start > total {
+		start = total
+	}
+	if end > total {
+		end = total
+	}
+
+	utils.Success(c, "ok", gin.H{
+		"list":     filtered[start:end],
+		"total":    total,
+		"page":     page,
+		"pageSize": pageSize,
+	})
+}
+
 func (h *UserHandler) AdminReviewApplication(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
