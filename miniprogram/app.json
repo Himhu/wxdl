@@ -11,7 +11,8 @@
     {
       "root": "pages/card",
       "pages": [
-        "detail/index"
+        "detail/index",
+        "destroy/index"
       ]
     },
     {

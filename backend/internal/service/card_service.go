@@ -49,7 +49,7 @@ type CardStatsResult struct {
 type CardService interface {
 	List(ctx context.Context, input CardListInput) (*CardListResult, error)
 	Detail(ctx context.Context, agentID, cardID uint) (*model.Card, error)
-	Destroy(ctx context.Context, agentID, cardID uint) (*DestroyCardResult, error)
+	Destroy(ctx context.Context, agentID, cardID uint, refundAmount decimal.Decimal) (*DestroyCardResult, error)
 	Stats(ctx context.Context, agentID uint) (*CardStatsResult, error)
 }
 
@@ -127,7 +127,12 @@ func (s *cardService) Detail(ctx context.Context, agentID, cardID uint) (*model.
 	return card, nil
 }
 
-func (s *cardService) Destroy(ctx context.Context, agentID, cardID uint) (*DestroyCardResult, error) {
+func (s *cardService) Destroy(ctx context.Context, agentID, cardID uint, refundAmount decimal.Decimal) (*DestroyCardResult, error) {
+	if refundAmount.IsNegative() {
+		return nil, utils.BadRequestError("refund amount cannot be negative")
+	}
+	refundAmount = refundAmount.Round(2)
+
 	if _, err := s.agentService.EnsureAgentActive(ctx, agentID); err != nil {
 		return nil, err
 	}
@@ -142,10 +147,7 @@ func (s *cardService) Destroy(ctx context.Context, agentID, cardID uint) (*Destr
 			return repository.ErrCardNotFound
 		}
 
-		switch card.Status {
-		case model.CardStatusUsed:
-			return repository.ErrCardAlreadyUsed
-		case model.CardStatusDestroyed:
+		if card.Status == model.CardStatusDestroyed {
 			return repository.ErrCardAlreadyDestroyed
 		}
 
@@ -162,10 +164,6 @@ func (s *cardService) Destroy(ctx context.Context, agentID, cardID uint) (*Destr
 			return err
 		}
 
-		refundAmount := card.Cost
-		if refundAmount.IsZero() {
-			refundAmount = decimal.NewFromInt(int64(card.Quota))
-		}
 		balanceBefore := agent.Balance
 		balanceAfter := balanceBefore.Add(refundAmount)
 		if err := repos.Agent().UpdateBalance(ctx, agentID, balanceAfter); err != nil {
@@ -179,7 +177,7 @@ func (s *cardService) Destroy(ctx context.Context, agentID, cardID uint) (*Destr
 			Amount:        refundAmount,
 			BalanceBefore: balanceBefore,
 			BalanceAfter:  balanceAfter,
-			Description:   "销毁卡密返还积分",
+			Description:   "销毁卡密返还积分（按剩余额度折算）",
 			RelatedID:     &relatedID,
 		}); err != nil {
 			return err
@@ -197,8 +195,6 @@ func (s *cardService) Destroy(ctx context.Context, agentID, cardID uint) (*Destr
 		switch err {
 		case repository.ErrCardNotFound:
 			return nil, utils.NotFoundError("card not found")
-		case repository.ErrCardAlreadyUsed:
-			return nil, utils.ConflictError("used card cannot be destroyed")
 		case repository.ErrCardAlreadyDestroyed:
 			return nil, utils.ConflictError("card already destroyed")
 		case repository.ErrAgentNotFound:

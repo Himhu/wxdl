@@ -12,7 +12,7 @@ function getCardDetail(id) {
 
 // 销毁卡密
 function destroyCard(id) {
-  return request.del('/api/v1/cards/' + id)
+  return request.delete('/api/v1/cards/' + id)
 }
 
 // 卡密统计

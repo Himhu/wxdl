@@ -1,0 +1,148 @@
+<wxs module="fmt">
+module.exports = {
+  formatDate: function(isoString) {
+    if (!isoString) return '';
+    var parts = isoString.split('T');
+    if (parts.length !== 2) return isoString;
+    return parts[0] + ' ' + parts[1].substring(0, 5);
+  }
+}
+</wxs>
+
+<view class="page-container">
+  <!-- 搜索栏（成功状态时隐藏） -->
+  <view class="search-container" wx:if="{{ viewState !== 'success' }}">
+    <view class="search-box">
+      <icon type="search" size="16" color="#999" />
+      <input
+        class="search-input"
+        placeholder="请输入需要查询的兑换码"
+        value="{{ keyword }}"
+        bindinput="onKeywordInput"
+        bindconfirm="onSearch"
+        confirm-type="search"
+      />
+      <view class="search-btn" bindtap="onSearch">查找</view>
+    </view>
+  </view>
+
+  <!-- 初始状态 -->
+  <view class="state-container" wx:if="{{ viewState === 'idle' }}">
+    <icon type="search" size="48" color="#e5e5e5" />
+    <text class="state-text">输入兑换码查看使用状态</text>
+  </view>
+
+  <!-- 搜索中 -->
+  <view class="state-container" wx:elif="{{ viewState === 'searching' }}">
+    <view class="loading-spinner"></view>
+    <text class="state-text">正在查询卡密信息...</text>
+  </view>
+
+  <!-- 未找到 -->
+  <view class="state-container" wx:elif="{{ viewState === 'not-found' }}">
+    <icon type="warn" size="48" color="#ff9900" />
+    <text class="state-text">未找到该兑换码，请检查输入是否正确</text>
+  </view>
+
+  <!-- 找到卡密 -->
+  <view class="card-result-container" wx:elif="{{ viewState === 'found' && card }}">
+    <view class="info-card">
+      <view class="card-header">
+        <text class="card-title">兑换码信息</text>
+        <view class="status-badge status-{{ card.status }}">
+          {{ card.status === 1 ? '未使用' : (card.status === 2 ? '已使用' : '已销毁') }}
+        </view>
+      </view>
+
+      <view class="info-list">
+        <!-- 卡号：独立 block 样式 -->
+        <view class="info-block">
+          <view class="info-block-header">
+            <text class="info-label">卡号</text>
+            <view class="copy-btn" bindtap="onCopyKey">复制</view>
+          </view>
+          <view class="info-value-block font-mono">{{ card.cardKey }}</view>
+        </view>
+
+        <view class="info-row">
+          <text class="info-label">面值</text>
+          <text class="info-value">{{ card.quota }} 元</text>
+        </view>
+        <view class="info-row" wx:if="{{ card.hasCost }}">
+          <text class="info-label">购买消耗</text>
+          <text class="info-value">{{ card.costDisplay }} 积分</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">创建时间</text>
+          <text class="info-value">{{ fmt.formatDate(card.createdAt) }}</text>
+        </view>
+
+        <!-- 已使用时显示额外信息 -->
+        <block wx:if="{{ card.status === 2 }}">
+          <view class="info-row">
+            <text class="info-label">使用者</text>
+            <text class="info-value">{{ card.usedBy || '未知' }}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">使用时间</text>
+            <text class="info-value">{{ fmt.formatDate(card.usedAt) }}</text>
+          </view>
+          <view class="info-row" wx:if="{{ card.externalRemaining !== undefined }}">
+            <text class="info-label">外站剩余额度</text>
+            <text class="info-value">{{ card.remainingYuan }} 元</text>
+          </view>
+          <view class="info-row" wx:if="{{ card.estimatedRefund !== undefined }}">
+            <text class="info-label">预计退还</text>
+            <text class="info-value" style="color: #ff4d4f">{{ card.estimatedRefund }} 积分</text>
+          </view>
+        </block>
+
+        <!-- 已销毁时显示额外信息 -->
+        <view class="info-row" wx:if="{{ card.status === 3 }}">
+          <text class="info-label">销毁时间</text>
+          <text class="info-value">{{ fmt.formatDate(card.destroyedAt) }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作区 -->
+    <view class="action-section">
+      <!-- 未使用或已使用：可销毁 -->
+      <block wx:if="{{ card.status === 1 || card.status === 2 }}">
+        <view class="warning-box">
+          <icon type="info" size="16" color="#ff4d4f" />
+          <text class="warning-text">销毁后将按剩余额度退还积分，该操作不可恢复！</text>
+        </view>
+        <button class="btn-danger" bindtap="onDestroyTap" loading="{{ destroying }}">确认销毁</button>
+      </block>
+
+      <!-- 已销毁 -->
+      <block wx:elif="{{ card.status === 3 }}">
+        <view class="disabled-hint">该卡密已被销毁</view>
+        <button class="btn-disabled" disabled>已销毁</button>
+      </block>
+    </view>
+  </view>
+
+  <!-- 销毁成功 -->
+  <view class="success-container" wx:elif="{{ viewState === 'success' }}">
+    <icon type="success" size="64" color="#52c41a" />
+    <text class="success-title">销毁成功</text>
+
+    <view class="success-details">
+      <view class="detail-row">
+        <text class="detail-label">退回积分</text>
+        <text class="detail-value highlight">+{{ destroyResult.refundedPoints }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">当前余额</text>
+        <text class="detail-value">{{ destroyResult.balanceAfter }}</text>
+      </view>
+    </view>
+
+    <view class="success-actions">
+      <button class="btn-primary" bindtap="onResetSearch">继续查询</button>
+      <button class="btn-secondary" bindtap="onBack">返回</button>
+    </view>
+  </view>
+</view>

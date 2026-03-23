@@ -42,6 +42,10 @@ type Card struct {
 	DestroyedAt *time.Time      `json:"destroyedAt"`
 	CreatedAt   time.Time       `json:"createdAt"`
 	UpdatedAt   time.Time       `json:"updatedAt"`
+
+	ExternalRemaining int             `gorm:"-" json:"externalRemaining,omitempty"`
+	ExternalUsed      int             `gorm:"-" json:"externalUsed,omitempty"`
+	EstimatedRefund   decimal.Decimal `gorm:"-" json:"estimatedRefund,omitempty"`
 }
 
 func (Card) TableName() string {

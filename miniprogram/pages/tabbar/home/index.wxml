@@ -51,6 +51,17 @@
         <text class="action-arrow">›</text>
       </view>
 
+      <view class="action-item" bindtap="onDestroyCards">
+        <view class="action-icon-box icon-box icon-box-md icon-box-danger">
+          <text class="action-icon">✕</text>
+        </view>
+        <view class="action-content">
+          <view class="action-title">销毁卡密</view>
+          <view class="action-desc">销毁未使用卡密并返还积分</view>
+        </view>
+        <text class="action-arrow">›</text>
+      </view>
+
       <view class="action-item" bindtap="onViewLogs">
         <view class="action-icon-box icon-box icon-box-md icon-box-warning">
           <text class="action-icon">☰</text>

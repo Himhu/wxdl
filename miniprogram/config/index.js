@@ -5,10 +5,9 @@ module.exports = {
 
   // 卡密状态枚举
   CARD_STATUS: {
-    UNUSED: { value: 0, label: '未使用', color: '#2F57C8', bgColor: '#EDF3FF', borderColor: '#C9DBFF' },
-    USED: { value: 1, label: '已使用', color: '#067647', bgColor: '#ECFDF3', borderColor: '#ABEFC6' },
-    DESTROYED: { value: 2, label: '已销毁', color: '#B42318', bgColor: '#FEF2F2', borderColor: '#FDA29B' },
-    EXPIRED: { value: 3, label: '已过期', color: '#8A94A6', bgColor: '#F3F5F9', borderColor: '#E5E6EB' }
+    UNUSED: { value: 1, label: '未使用', color: '#2F57C8', bgColor: '#EDF3FF', borderColor: '#C9DBFF' },
+    USED: { value: 2, label: '已使用', color: '#067647', bgColor: '#ECFDF3', borderColor: '#ABEFC6' },
+    DESTROYED: { value: 3, label: '已销毁', color: '#B42318', bgColor: '#FEF2F2', borderColor: '#FDA29B' }
   },
 
   // 充值状态枚举

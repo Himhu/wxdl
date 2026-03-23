@@ -102,6 +102,11 @@ Page({
     wx.navigateTo({ url: '/pages/finance/recharge/index' })
   },
 
+  onDestroyCards() {
+    if (!this._checkAgent('销毁卡密')) return
+    wx.navigateTo({ url: '/pages/card/destroy/index' })
+  },
+
   onViewLogs() {
     if (!this._checkAgent('操作日志')) return
     wx.navigateTo({ url: '/pages/logs/index' })
