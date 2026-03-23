@@ -97,7 +97,7 @@ func main() {
 	legacyTransferService := service.NewLegacyTransferService(legacySiteService, userRepository, agentRepository, txManager, "admin", "wugui1996")
 
 	authHandler := handler.NewAuthHandler(authService)
-	cardHandler := handler.NewCardHandler(cardService, systemSettingService)
+	cardHandler := handler.NewCardHandler(cardService, cardRepository, systemSettingService)
 	agentHandler := handler.NewAgentHandler(agentService)
 	pointsHandler := handler.NewPointsHandler(pointsService)
 	adminAuthHandler := handler.NewAdminAuthHandler(adminAuthService)

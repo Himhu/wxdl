@@ -13,6 +13,7 @@ import (
 
 	"backend/internal/middleware"
 	"backend/internal/model"
+	"backend/internal/repository"
 	"backend/internal/service"
 	"backend/internal/utils"
 
@@ -22,15 +23,18 @@ import (
 
 type CardHandler struct {
 	cardService    service.CardService
+	cardRepo       repository.CardRepository
 	settingService service.SystemSettingService
 }
 
 func NewCardHandler(
 	cardService service.CardService,
+	cardRepo repository.CardRepository,
 	settingService service.SystemSettingService,
 ) *CardHandler {
 	return &CardHandler{
 		cardService:    cardService,
+		cardRepo:       cardRepo,
 		settingService: settingService,
 	}
 }
@@ -186,6 +190,17 @@ func (h *CardHandler) enrichCardExternalInfo(c *gin.Context, card *model.Card) {
 
 	log.Printf("enrichCardExternalInfo: card=%s, externalStatus=%d, usedUserID=%d, quota=%d",
 		card.CardKey, detail.Status, detail.UsedUserID, detail.Quota)
+
+	externalUsed := detail.Status == 3 || detail.UsedUserID > 0
+	if externalUsed && card.Status == model.CardStatusUnused {
+		card.Status = model.CardStatusUsed
+		updated, syncErr := h.cardRepo.SyncStatusByCardKey(c.Request.Context(), card.CardKey, model.CardStatusUsed, nil)
+		if syncErr != nil {
+			log.Printf("warn: sync used status failed for card %s: %v", card.CardKey, syncErr)
+		} else if updated {
+			log.Printf("enrichCardExternalInfo: synced local status to used for card=%s", card.CardKey)
+		}
+	}
 
 	if detail.UsedUserID == 0 {
 		card.ExternalRemaining = originalUnits
