@@ -74,11 +74,6 @@ export default function AdminLayout() {
               label: <Link to="/audit-logs">操作日志</Link>,
             },
             {
-              key: '/mini-program',
-              icon: <SettingOutlined />,
-              label: <Link to="/mini-program">小程序设置</Link>,
-            },
-            {
               key: '/system-settings',
               icon: <SettingOutlined />,
               label: <Link to="/system-settings">系统设置</Link>,

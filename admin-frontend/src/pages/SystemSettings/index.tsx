@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, Form, Input, InputNumber, Button, App, Switch, Select, Row, Col, Flex, Tabs, Typography, Divider, Tag, Space
+  Card, Form, Input, InputNumber, Button, App, Switch, Select, Row, Col, Flex, Tabs, Typography, Divider, Tag, Space, Table, Modal
 } from 'antd';
 import { InfoCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { systemSettingApi } from '../../api/systemSetting';
-import type { WeChatSettings, ObjectStorageSettings, RedemptionSettings, AgentPricingSettings } from '../../api/systemSetting';
+import type { WeChatSettings, ObjectStorageSettings, RedemptionSettings } from '../../api/systemSetting';
+import { miniProgramConfigApi } from '../../api/miniProgramConfig';
+import type { ConfigItem } from '../../api/miniProgramConfig';
 
 const { Text, Title } = Typography;
 
@@ -63,6 +65,21 @@ export default function SystemSettings() {
     } catch { message.error('加载代理定价配置失败') }
   }, [apForm, message]);
 
+  const mpLoaded = useState(false);
+  const [mpConfigs, setMpConfigs] = useState<ConfigItem[]>([]);
+  const [mpLoading, setMpLoading] = useState(false);
+  const [mpEditModal, setMpEditModal] = useState<{ visible: boolean; item?: ConfigItem }>({ visible: false });
+  const [mpForm] = Form.useForm();
+
+  const loadMpConfigs = useCallback(async () => {
+    setMpLoading(true);
+    try {
+      const res = await miniProgramConfigApi.list();
+      setMpConfigs(Array.isArray(res) ? res : []);
+    } catch { message.error('加载小程序运行配置失败') }
+    finally { setMpLoading(false) }
+  }, [message]);
+
   const loadRdSettings = useCallback(async () => {
     try {
       const res: any = await systemSettingApi.getRedemptionSettings();
@@ -87,6 +104,10 @@ export default function SystemSettings() {
     if (activeTab === 'agent-pricing' && !apLoaded[0]) {
       loadApSettings();
       apLoaded[1](true);
+    }
+    if (activeTab === 'mp-config' && !mpLoaded[0]) {
+      loadMpConfigs();
+      mpLoaded[1](true);
     }
   }, [activeTab]);
 
@@ -352,14 +373,76 @@ export default function SystemSettings() {
     </div>
   );
 
+  const handleMpEdit = (item: ConfigItem) => {
+    mpForm.setFieldsValue({ publishedValue: item.publishedValue ?? '' });
+    setMpEditModal({ visible: true, item });
+  };
+
+  const handleMpSave = async () => {
+    const values = await mpForm.validateFields();
+    if (!mpEditModal.item) return;
+    try {
+      await miniProgramConfigApi.update(mpEditModal.item.id, values.publishedValue);
+      message.success('保存成功');
+      setMpEditModal({ visible: false });
+      mpForm.resetFields();
+      loadMpConfigs();
+    } catch { message.error('保存失败') }
+  };
+
+  const mpColumns = [
+    { title: '配置键', dataIndex: 'configKey', key: 'configKey', width: 220, render: (t: string) => <Text strong>{t}</Text> },
+    { title: '说明', dataIndex: 'description', key: 'description' },
+    { title: '当前值', dataIndex: 'publishedValue', key: 'publishedValue', render: (val: string | null) => val ?? '-' },
+    { title: '操作', key: 'action', width: 100, render: (_: any, record: ConfigItem) => <Button type="link" onClick={() => handleMpEdit(record)}>编辑</Button> },
+  ];
+
+  const mpNamespaces = ['general', 'feature', 'recharge'];
+  const mpLabels: Record<string, string> = { general: '通用配置', feature: '功能开关', recharge: '充值配置' };
+
+  const mpConfigTab = (
+    <div style={{ paddingTop: 16 }}>
+      <Tabs
+        type="card"
+        items={mpNamespaces.map(ns => ({
+          key: ns,
+          label: mpLabels[ns],
+          children: (
+            <Table loading={mpLoading} dataSource={mpConfigs.filter(c => c.namespace === ns)} columns={mpColumns} rowKey="id" pagination={false} bordered />
+          ),
+        }))}
+      />
+    </div>
+  );
+
   return (
-    <Card variant="borderless" styles={{ body: { paddingTop: 12 } }}>
-      <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
-        { key: 'wechat', label: '微信小程序配置', children: wechatTab },
-        { key: 'oss', label: '对象存储 (OSS) 配置', children: ossTab },
-        { key: 'redemption', label: '兑换码站点', children: redemptionTab },
-        { key: 'agent-pricing', label: '代理定价', children: agentPricingTab },
-      ]} />
-    </Card>
+    <>
+      <Card variant="borderless" styles={{ body: { paddingTop: 12 } }}>
+        <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
+          { key: 'wechat', label: '微信小程序配置', children: wechatTab },
+          { key: 'oss', label: '对象存储 (OSS) 配置', children: ossTab },
+          { key: 'redemption', label: '兑换码站点', children: redemptionTab },
+          { key: 'agent-pricing', label: '代理定价', children: agentPricingTab },
+          { key: 'mp-config', label: '小程序运行配置', children: mpConfigTab },
+        ]} />
+      </Card>
+
+      <Modal
+        title="编辑配置"
+        open={mpEditModal.visible}
+        onOk={handleMpSave}
+        onCancel={() => { setMpEditModal({ visible: false }); mpForm.resetFields(); }}
+        destroyOnClose
+      >
+        <Form form={mpForm} layout="vertical">
+          <Form.Item label="配置说明" style={{ marginBottom: 12 }}>
+            <Text type="secondary">{mpEditModal.item?.description}</Text>
+          </Form.Item>
+          <Form.Item name="publishedValue" label="配置值 (JSON)" rules={[{ required: true, message: '请输入配置值' }]}>
+            <Input.TextArea rows={6} placeholder='请输入 JSON，例如：true、123、"文本"、{"key":"value"}' />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
   );
 }
