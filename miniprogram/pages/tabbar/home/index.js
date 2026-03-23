@@ -16,7 +16,7 @@ Page({
 
   data: {
     isAgent: false,
-    rechargeEnabled: true,
+    rechargeEnabled: false,
     stats: {
       totalCards: 0,
       usedCards: 0,
@@ -28,7 +28,7 @@ Page({
     const app = getApp()
     const cfg = app.globalData.bootstrapConfig
     this.setData({
-      rechargeEnabled: cfg && cfg.feature && cfg.feature.recharge_enabled === false ? false : true
+      rechargeEnabled: !!(cfg && cfg.feature && cfg.feature.recharge_enabled)
     })
     if (this.data.isLogin) {
       this._refreshRole()
@@ -93,8 +93,8 @@ Page({
   },
 
   onCardManage() {
-    if (!this._checkAgent('卡密管理')) return
-    wx.switchTab({ url: '/pages/tabbar/cards/index' })
+    if (!this._checkAgent('创建卡密')) return
+    wx.navigateTo({ url: '/pages/card/create/index' })
   },
 
   onRecharge() {

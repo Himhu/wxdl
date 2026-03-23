@@ -34,8 +34,8 @@
           <text class="action-icon">🗂</text>
         </view>
         <view class="action-content">
-          <view class="action-title">卡密管理</view>
-          <view class="action-desc">查看和管理所有卡密</view>
+          <view class="action-title">创建卡密</view>
+          <view class="action-desc">选择面值快速生成卡密</view>
         </view>
         <text class="action-arrow">›</text>
       </view>

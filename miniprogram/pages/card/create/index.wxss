@@ -1,0 +1,162 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding: var(--spacing-md);
+  box-sizing: border-box;
+}
+
+/* 成功状态 */
+.success-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl) var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.success-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: var(--spacing-md) 0 var(--spacing-xl);
+}
+
+.card-info {
+  width: 100%;
+  background: var(--color-bg-page);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  box-sizing: border-box;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-md);
+}
+
+.label { color: var(--color-text-secondary); }
+.value { color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
+.cost-value { color: #ff4d4f; font-weight: var(--font-weight-semibold); }
+
+.key-box {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 2rpx dashed var(--color-border-light);
+  word-break: break-all;
+  text-align: center;
+}
+
+.key-text {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-primary);
+  letter-spacing: 2rpx;
+}
+
+.action-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 创建表单 */
+.form-view {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-xl) 0;
+}
+
+.input-title {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.amount-input-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  border-bottom: 2rpx solid var(--color-border-light);
+  padding-bottom: var(--spacing-sm);
+  width: 80%;
+  margin-bottom: var(--spacing-md);
+}
+
+.amount-input {
+  font-size: 80rpx;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  height: 100rpx;
+  line-height: 100rpx;
+  text-align: center;
+  flex: 1;
+}
+
+.input-placeholder {
+  color: var(--color-text-quaternary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.unit {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
+  margin-left: var(--spacing-xs);
+}
+
+.input-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.bottom-action {
+  margin-top: var(--spacing-2xl);
+}
+
+/* 按钮 */
+.btn-submit,
+.btn-primary,
+.btn-secondary {
+  width: 100% !important;
+  border-radius: var(--radius-full) !important;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  padding: 20rpx 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-submit::after, .btn-primary::after, .btn-secondary::after { border: none; }
+
+.btn-submit, .btn-primary {
+  background-color: var(--color-brand-primary) !important;
+  color: #ffffff;
+}
+
+.btn-submit.disabled {
+  background-color: var(--color-bg-hover) !important;
+  color: var(--color-text-tertiary) !important;
+}
+
+.btn-secondary {
+  background-color: var(--color-bg-page) !important;
+  color: var(--color-text-primary);
+  border: 1rpx solid var(--color-border-light);
+}

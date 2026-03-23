@@ -1,0 +1,55 @@
+<view class="container">
+  <!-- 成功状态 -->
+  <view class="success-view" wx:if="{{successData}}">
+    <icon type="success" size="64" color="#52c41a" />
+    <view class="success-title">创建成功</view>
+
+    <view class="card-info">
+      <view class="info-row">
+        <text class="label">面值</text>
+        <text class="value">{{successData.quota}} 元</text>
+      </view>
+      <view class="info-row">
+        <text class="label">消耗积分</text>
+        <text class="value cost-value">{{successData.cost}}</text>
+      </view>
+      <view class="key-box">
+        <text class="key-text">{{successData.cardKey}}</text>
+      </view>
+    </view>
+
+    <view class="action-group">
+      <button class="btn-primary" bindtap="handleCopy">复制卡密</button>
+      <button class="btn-secondary" bindtap="handleContinue">继续创建</button>
+    </view>
+  </view>
+
+  <!-- 创建表单 -->
+  <view class="form-view" wx:else>
+    <view class="input-section">
+      <view class="input-title">输入面值</view>
+      <view class="amount-input-wrap">
+        <input
+          class="amount-input"
+          type="number"
+          value="{{amount}}"
+          bindinput="handleInput"
+          placeholder="0"
+          placeholder-class="input-placeholder"
+          focus="{{true}}"
+        />
+        <text class="unit">元</text>
+      </view>
+      <view class="input-hint">请输入正整数面值</view>
+    </view>
+
+    <view class="bottom-action">
+      <button
+        class="btn-submit {{!isValid || isCreating ? 'disabled' : ''}}"
+        bindtap="handleCreate"
+      >
+        {{isCreating ? '创建中...' : '确认创建'}}
+      </button>
+    </view>
+  </view>
+</view>
