@@ -6,6 +6,15 @@ Page({
     customAmount: ''
   },
 
+  onLoad() {
+    const app = getApp()
+    const cfg = app.globalData.bootstrapConfig
+    if (cfg && cfg.feature && cfg.feature.recharge_enabled === false) {
+      wx.showToast({ title: '充值功能暂未开放', icon: 'none' })
+      setTimeout(() => wx.navigateBack(), 1500)
+    }
+  },
+
   onSelectAmount(e) {
     const index = e.currentTarget.dataset.index
     this.setData({ selectedIndex: index, customAmount: '' })

@@ -40,7 +40,7 @@
         <text class="action-arrow">›</text>
       </view>
 
-      <view class="action-item" bindtap="onRecharge">
+      <view class="action-item" bindtap="onRecharge" wx:if="{{ rechargeEnabled }}">
         <view class="action-icon-box icon-box icon-box-md icon-box-success">
           <text class="action-icon">◈</text>
         </view>

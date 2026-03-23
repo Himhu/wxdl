@@ -29,7 +29,11 @@ Page({
   },
 
   _buildMenuList(isAgent) {
-    return [
+    const app = getApp()
+    const cfg = app.globalData.bootstrapConfig
+    const rechargeEnabled = !(cfg && cfg.feature && cfg.feature.recharge_enabled === false)
+
+    const list = [
       {
         title: '我的下级',
         url: '/pages/proxy/list/index',
@@ -45,16 +49,21 @@ Page({
         agentOnly: false,
         showLock: false,
         itemClass: ''
-      },
-      {
+      }
+    ]
+
+    if (rechargeEnabled) {
+      list.push({
         title: '充值记录',
         url: '/pages/finance/records/index',
         iconText: '◇',
         agentOnly: true,
         showLock: !isAgent,
         itemClass: !isAgent ? 'menu-item-disabled' : ''
-      }
-    ]
+      })
+    }
+
+    return list
   },
 
   async _refreshRole() {

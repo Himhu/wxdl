@@ -374,7 +374,10 @@ export default function SystemSettings() {
   );
 
   const handleMpEdit = (item: ConfigItem) => {
-    mpForm.setFieldsValue({ publishedValue: item.publishedValue ?? '' });
+    let val: any = item.publishedValue ?? '';
+    if (val === 'true') val = true;
+    if (val === 'false') val = false;
+    mpForm.setFieldsValue({ publishedValue: val });
     setMpEditModal({ visible: true, item });
   };
 
@@ -382,7 +385,10 @@ export default function SystemSettings() {
     const values = await mpForm.validateFields();
     if (!mpEditModal.item) return;
     try {
-      await miniProgramConfigApi.update(mpEditModal.item.id, values.publishedValue);
+      const payloadValue = typeof values.publishedValue === 'boolean'
+        ? String(values.publishedValue)
+        : values.publishedValue;
+      await miniProgramConfigApi.update(mpEditModal.item.id, payloadValue);
       message.success('保存成功');
       setMpEditModal({ visible: false });
       mpForm.resetFields();
@@ -393,7 +399,12 @@ export default function SystemSettings() {
   const mpColumns = [
     { title: '配置键', dataIndex: 'configKey', key: 'configKey', width: 220, render: (t: string) => <Text strong>{t}</Text> },
     { title: '说明', dataIndex: 'description', key: 'description' },
-    { title: '当前值', dataIndex: 'publishedValue', key: 'publishedValue', render: (val: string | null) => val ?? '-' },
+    { title: '当前值', dataIndex: 'publishedValue', key: 'publishedValue', render: (val: string | null) => {
+      if (!val) return '-';
+      if (val === 'true') return <Tag color="success">已开启</Tag>;
+      if (val === 'false') return <Tag color="default">已关闭</Tag>;
+      return val;
+    }},
     { title: '操作', key: 'action', width: 100, render: (_: any, record: ConfigItem) => <Button type="link" onClick={() => handleMpEdit(record)}>编辑</Button> },
   ];
 
@@ -423,7 +434,7 @@ export default function SystemSettings() {
           { key: 'oss', label: '对象存储 (OSS) 配置', children: ossTab },
           { key: 'redemption', label: '兑换码站点', children: redemptionTab },
           { key: 'agent-pricing', label: '代理定价', children: agentPricingTab },
-          { key: 'mp-config', label: '小程序运行配置', children: mpConfigTab },
+          { key: 'mp-config', label: '业务配置', children: mpConfigTab },
         ]} />
       </Card>
 
@@ -438,8 +449,25 @@ export default function SystemSettings() {
           <Form.Item label="配置说明" style={{ marginBottom: 12 }}>
             <Text type="secondary">{mpEditModal.item?.description}</Text>
           </Form.Item>
-          <Form.Item name="publishedValue" label="配置值 (JSON)" rules={[{ required: true, message: '请输入配置值' }]}>
-            <Input.TextArea rows={6} placeholder='请输入 JSON，例如：true、123、"文本"、{"key":"value"}' />
+          <Form.Item noStyle shouldUpdate={(prev, curr) => prev.publishedValue !== curr.publishedValue}>
+            {({ getFieldValue }) => {
+              const val = getFieldValue('publishedValue');
+              const isBoolean = typeof val === 'boolean';
+
+              if (isBoolean) {
+                return (
+                  <Form.Item name="publishedValue" label="状态" valuePropName="checked">
+                    <Switch checkedChildren="开启" unCheckedChildren="关闭" />
+                  </Form.Item>
+                );
+              }
+
+              return (
+                <Form.Item name="publishedValue" label="配置值" rules={[{ required: true, message: '请输入配置值' }]}>
+                  <Input.TextArea rows={6} placeholder='请输入配置值' />
+                </Form.Item>
+              );
+            }}
           </Form.Item>
         </Form>
       </Modal>

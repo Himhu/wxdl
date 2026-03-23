@@ -16,6 +16,7 @@ Page({
 
   data: {
     isAgent: false,
+    rechargeEnabled: true,
     stats: {
       totalCards: 0,
       usedCards: 0,
@@ -24,6 +25,11 @@ Page({
   },
 
   onShow() {
+    const app = getApp()
+    const cfg = app.globalData.bootstrapConfig
+    this.setData({
+      rechargeEnabled: cfg && cfg.feature && cfg.feature.recharge_enabled === false ? false : true
+    })
     if (this.data.isLogin) {
       this._refreshRole()
     }
