@@ -115,6 +115,8 @@ func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *C
 		// 管理端卡密管理
 		adminCardGroup := adminGroup.Group("/cards")
 		adminCardGroup.Use(middleware.JWTAdminMiddleware(jwtConfig))
+		adminCardGroup.GET("", adminCardHandler.List)
+		adminCardGroup.POST("/sync-statuses", adminCardHandler.SyncStatuses)
 		adminCardGroup.POST("/batch-create", adminCardHandler.BatchCreate)
 
 		// 小程序公开API

@@ -35,11 +35,28 @@ type CardStats struct {
 	Destroyed int64 `json:"destroyed"`
 }
 
+type AdminCardQuery struct {
+	AgentID  *uint
+	Page     int
+	PageSize int
+	Status   *int
+	Keyword  string
+}
+
+type AdminCardListItem struct {
+	model.Card
+	AgentUsername string `json:"agentUsername"`
+	AgentRealName string `json:"agentRealName"`
+}
+
 type CardRepository interface {
 	ListByAgent(ctx context.Context, query CardQuery) ([]model.Card, int64, error)
+	ListAll(ctx context.Context, query AdminCardQuery) ([]AdminCardListItem, int64, error)
 	GetByID(ctx context.Context, agentID, cardID uint) (*model.Card, error)
 	GetByIDForUpdate(ctx context.Context, agentID, cardID uint) (*model.Card, error)
 	MarkDestroyed(ctx context.Context, cardID uint, destroyedAt time.Time) error
+	SyncStatusByCardKey(ctx context.Context, cardKey string, status int, usedAt *time.Time) (bool, error)
+	ListUnusedCardKeys(ctx context.Context) ([]string, error)
 	GetStats(ctx context.Context, agentID uint) (*CardStats, error)
 	Create(ctx context.Context, card *model.Card) error
 	CreatePointsRecord(ctx context.Context, record *model.PointsRecord) error
@@ -74,6 +91,39 @@ func (r *cardRepository) ListByAgent(ctx context.Context, query CardQuery) ([]mo
 	}
 
 	return cards, total, nil
+}
+
+func (r *cardRepository) ListAll(ctx context.Context, query AdminCardQuery) ([]AdminCardListItem, int64, error) {
+	base := r.db.WithContext(ctx).
+		Table("cards").
+		Joins("LEFT JOIN agents ON agents.id = cards.agent_id")
+
+	if query.AgentID != nil {
+		base = base.Where("cards.agent_id = ?", *query.AgentID)
+	}
+	if query.Status != nil {
+		base = base.Where("cards.status = ?", *query.Status)
+	}
+	if keyword := strings.TrimSpace(query.Keyword); keyword != "" {
+		base = base.Where("cards.card_key LIKE ?", "%"+keyword+"%")
+	}
+
+	var total int64
+	if err := base.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var items []AdminCardListItem
+	if err := base.
+		Select("cards.*, agents.username AS agent_username, agents.real_name AS agent_real_name").
+		Order("cards.id DESC").
+		Offset((query.Page - 1) * query.PageSize).
+		Limit(query.PageSize).
+		Scan(&items).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return items, total, nil
 }
 
 func (r *cardRepository) GetByID(ctx context.Context, agentID, cardID uint) (*model.Card, error) {
@@ -114,6 +164,35 @@ func (r *cardRepository) MarkDestroyed(ctx context.Context, cardID uint, destroy
 			"status":       model.CardStatusDestroyed,
 			"destroyed_at": &destroyedAt,
 		}).Error
+}
+
+func (r *cardRepository) SyncStatusByCardKey(ctx context.Context, cardKey string, status int, usedAt *time.Time) (bool, error) {
+	updates := map[string]any{"status": status}
+	if usedAt != nil {
+		updates["used_at"] = usedAt
+	}
+
+	db := r.db.WithContext(ctx).Model(&model.Card{}).
+		Where("card_key = ? AND status = ?", cardKey, model.CardStatusUnused)
+
+	if status != model.CardStatusUsed && status != model.CardStatusDestroyed {
+		return false, nil
+	}
+
+	result := db.Updates(updates)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return result.RowsAffected > 0, nil
+}
+
+func (r *cardRepository) ListUnusedCardKeys(ctx context.Context) ([]string, error) {
+	var keys []string
+	err := r.db.WithContext(ctx).
+		Model(&model.Card{}).
+		Where("status = ?", model.CardStatusUnused).
+		Pluck("card_key", &keys).Error
+	return keys, err
 }
 
 func (r *cardRepository) GetStats(ctx context.Context, agentID uint) (*CardStats, error) {

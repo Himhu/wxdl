@@ -105,7 +105,7 @@ func main() {
 	adminSystemSettingHandler := handler.NewAdminSystemSettingHandler(systemSettingService)
 	miniProgramConfigHandler := handler.NewMiniProgramConfigHandler(miniProgramConfigService)
 	adminAgentHandler := handler.NewAdminAgentHandler(agentRepository)
-	adminCardHandler := handler.NewAdminCardHandler(systemSettingService)
+	adminCardHandler := handler.NewAdminCardHandler(systemSettingService, cardRepository)
 	agentCardHandler := handler.NewAgentCardHandler(systemSettingService, agentRepository, cardRepository, txManager)
 	auditHandler := handler.NewAuditHandler(agentRepository, userRepository, db)
 	healthHandler := handler.NewHealthHandler(cfg)
