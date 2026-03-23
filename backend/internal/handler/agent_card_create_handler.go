@@ -126,8 +126,14 @@ func (h *AgentCardHandler) Create(c *gin.Context) {
 			return fmt.Errorf("代理不存在")
 		}
 
-		// 计算成本（面值即成本，1:1）
-		cost := decimal.NewFromInt(int64(req.Quota))
+		// 基于锁定后的代理等级获取单价
+		lockedUnitPrice, err := h.settingService.GetAgentCardUnitPrice(c.Request.Context(), lockedAgent.Level)
+		if err != nil {
+			return fmt.Errorf("代理价格配置异常: %v", err)
+		}
+
+		// 按代理等级单价计算成本
+		cost := lockedUnitPrice.Mul(decimal.NewFromInt(int64(req.Quota)))
 
 		// 校验余额
 		if lockedAgent.Balance.LessThan(cost) {
@@ -147,7 +153,7 @@ func (h *AgentCardHandler) Create(c *gin.Context) {
 			Amount:        cost.Neg(),
 			BalanceBefore: lockedAgent.Balance,
 			BalanceAfter:  newBalance,
-			Description:   fmt.Sprintf("创建兑换码 面值%d元", req.Quota),
+			Description:   fmt.Sprintf("创建兑换码 面值%d元 单价%s", req.Quota, lockedUnitPrice.StringFixed(2)),
 		}
 		if err := h.cardRepository.CreatePointsRecord(c.Request.Context(), pointsRecord); err != nil {
 			return fmt.Errorf("写积分流水失败")

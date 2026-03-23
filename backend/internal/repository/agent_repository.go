@@ -39,6 +39,7 @@ type AgentRepository interface {
 	Update(ctx context.Context, agent *model.Agent) error
 	UpdateStatus(ctx context.Context, agentID uint, status int) error
 	UpdateBalance(ctx context.Context, agentID uint, balance decimal.Decimal) error
+	UpdateLevel(ctx context.Context, agentID uint, level int) error
 	BindWechat(ctx context.Context, agentID uint, openID, unionID string) error
 	CreateLoginLog(ctx context.Context, log *model.LoginLog) error
 	ListLoginLogs(ctx context.Context, agentID uint, page, pageSize int) ([]model.LoginLog, int64, error)
@@ -186,6 +187,13 @@ func (r *agentRepository) UpdateBalance(ctx context.Context, agentID uint, balan
 		Model(&model.Agent{}).
 		Where("id = ?", agentID).
 		Update("balance", balance).Error
+}
+
+func (r *agentRepository) UpdateLevel(ctx context.Context, agentID uint, level int) error {
+	return r.db.WithContext(ctx).
+		Model(&model.Agent{}).
+		Where("id = ?", agentID).
+		Update("level", level).Error
 }
 
 func (r *agentRepository) BindWechat(ctx context.Context, agentID uint, openID, unionID string) error {

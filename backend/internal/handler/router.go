@@ -105,6 +105,12 @@ func RegisterRoutes(router *gin.Engine, authHandler *AuthHandler, cardHandler *C
 		systemSettingGroup.PUT("/redemption",
 			middleware.RequireAdminPermission(adminRepo, model.PermissionSystemAll, model.PermissionAll),
 			adminSystemSettingHandler.UpdateRedemptionSettings)
+		systemSettingGroup.GET("/agent-pricing",
+			middleware.RequireAdminPermission(adminRepo, model.PermissionSystemAll, model.PermissionAll),
+			adminSystemSettingHandler.GetAgentPricingSettings)
+		systemSettingGroup.PUT("/agent-pricing",
+			middleware.RequireAdminPermission(adminRepo, model.PermissionSystemAll, model.PermissionAll),
+			adminSystemSettingHandler.UpdateAgentPricingSettings)
 
 		// 管理端卡密管理
 		adminCardGroup := adminGroup.Group("/cards")

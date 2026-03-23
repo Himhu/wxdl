@@ -13,6 +13,7 @@ Page({
 
   data: {
     isAgent: false,
+    agentLevel: 0,
     hasPendingApplication: false,
     hasShownApprovedToast: false,
     inviteCode: '',
@@ -67,6 +68,7 @@ Page({
         const hasPendingApplication = !!res.pendingApplication
         this.setData({
           isAgent,
+          agentLevel: isAgent ? (res.userInfo.agentLevel || 1) : 0,
           hasPendingApplication,
           inviteCode: res.inviteCode || '',
           displayNickname: nickname,

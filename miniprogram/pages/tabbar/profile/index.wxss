@@ -64,7 +64,6 @@
   padding: 0 16rpx;
   line-height: 40rpx;
   border-radius: var(--radius-full);
-  align-self: flex-start;
 }
 
 .role-agent {
@@ -77,6 +76,36 @@
   color: #8A94A6;
   background: #F3F5F9;
   border: 1rpx solid #E5E6EB;
+}
+
+.user-tags {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  align-self: flex-start;
+}
+
+.agent-level-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  padding: 0 16rpx;
+  line-height: 40rpx;
+  border-radius: var(--radius-full);
+}
+
+.level-normal {
+  color: #4E5969;
+  background: #F2F3F5;
+  border: 1rpx solid #E5E6EB;
+}
+
+.level-vip {
+  color: #8F5E14;
+  background: #FEF3C7;
+  border: 1rpx solid #FDE68A;
 }
 
 /* --- 角色提示卡片 --- */

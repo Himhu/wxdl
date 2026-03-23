@@ -234,7 +234,7 @@ func (s *LegacySiteService) login(ctx context.Context, client *http.Client, csrf
 	}
 
 	agentType := "普通代理"
-	if loginResp.User.SVIPRemainingDays > 0 {
+	if loginResp.User.AgentLevelID == 2 {
 		agentType = "VIP代理"
 	}
 

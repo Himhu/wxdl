@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Card, Form, Input, Button, App, Switch, Select, Row, Col, Flex, Tabs, Typography, Divider, Tag, Space
+  Card, Form, Input, InputNumber, Button, App, Switch, Select, Row, Col, Flex, Tabs, Typography, Divider, Tag, Space
 } from 'antd';
 import { InfoCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { systemSettingApi } from '../../api/systemSetting';
-import type { WeChatSettings, ObjectStorageSettings, RedemptionSettings } from '../../api/systemSetting';
+import type { WeChatSettings, ObjectStorageSettings, RedemptionSettings, AgentPricingSettings } from '../../api/systemSetting';
 
 const { Text, Title } = Typography;
 
@@ -49,6 +49,19 @@ export default function SystemSettings() {
   const [rdLoading, setRdLoading] = useState(false);
   const [rdSettings, setRdSettings] = useState<RedemptionSettings | null>(null);
   const rdLoaded = useState(false);
+  const apLoaded = useState(false);
+  const [apForm] = Form.useForm();
+  const [apLoading, setApLoading] = useState(false);
+
+  const loadApSettings = useCallback(async () => {
+    try {
+      const res: any = await systemSettingApi.getAgentPricingSettings();
+      apForm.setFieldsValue({
+        level1Price: res?.level1Price ? Number(res.level1Price) : 1.00,
+        level2Price: res?.level2Price ? Number(res.level2Price) : 1.00,
+      });
+    } catch { message.error('加载代理定价配置失败') }
+  }, [apForm, message]);
 
   const loadRdSettings = useCallback(async () => {
     try {
@@ -70,6 +83,10 @@ export default function SystemSettings() {
     if (activeTab === 'redemption' && !rdLoaded[0]) {
       loadRdSettings();
       rdLoaded[1](true);
+    }
+    if (activeTab === 'agent-pricing' && !apLoaded[0]) {
+      loadApSettings();
+      apLoaded[1](true);
     }
   }, [activeTab]);
 
@@ -279,12 +296,69 @@ export default function SystemSettings() {
     </div>
   );
 
+  const handleApSubmit = async (values: any) => {
+    setApLoading(true);
+    try {
+      await systemSettingApi.updateAgentPricingSettings({
+        level1Price: Number(values.level1Price).toFixed(2),
+        level2Price: Number(values.level2Price).toFixed(2),
+      });
+      message.success('代理定价已更新');
+      await loadApSettings();
+    } catch { message.error('更新失败') }
+    finally { setApLoading(false) }
+  };
+
+  const agentPricingTab = (
+    <div style={{ maxWidth: 560, paddingTop: 16 }}>
+      <Form form={apForm} layout="vertical" onFinish={handleApSubmit}>
+        <Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>代理进货折扣设置</Title>
+        <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>设置不同等级代理拿卡的折扣费率（如：0.80 表示按面值的 80% 结算）</Text>
+
+        <Form.Item label="普通代理折扣率" name="level1Price" rules={[{ required: true, message: '请输入普通代理折扣率' }]} style={{ marginBottom: 8 }}>
+          <InputNumber min={0.01} max={1.00} step={0.01} precision={2} style={{ width: '100%' }} size="large" />
+        </Form.Item>
+        <Form.Item noStyle dependencies={['level1Price']}>
+          {({ getFieldValue }) => {
+            const rate = getFieldValue('level1Price');
+            const example = rate ? (10 * rate).toFixed(2) : '-';
+            return (
+              <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 24 }}>
+                例：10元面值的充值卡，实际进货价为 {example} 元
+              </Text>
+            );
+          }}
+        </Form.Item>
+
+        <Form.Item label="VIP代理折扣率" name="level2Price" rules={[{ required: true, message: '请输入VIP代理折扣率' }]} style={{ marginBottom: 8 }}>
+          <InputNumber min={0.01} max={1.00} step={0.01} precision={2} style={{ width: '100%' }} size="large" />
+        </Form.Item>
+        <Form.Item noStyle dependencies={['level2Price']}>
+          {({ getFieldValue }) => {
+            const rate = getFieldValue('level2Price');
+            const example = rate ? (10 * rate).toFixed(2) : '-';
+            return (
+              <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 24 }}>
+                例：10元面值的充值卡，实际进货价为 {example} 元
+              </Text>
+            );
+          }}
+        </Form.Item>
+
+        <Form.Item style={{ marginTop: 32 }}>
+          <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={apLoading}>保存代理定价</Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+
   return (
     <Card variant="borderless" styles={{ body: { paddingTop: 12 } }}>
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
         { key: 'wechat', label: '微信小程序配置', children: wechatTab },
         { key: 'oss', label: '对象存储 (OSS) 配置', children: ossTab },
         { key: 'redemption', label: '兑换码站点', children: redemptionTab },
+        { key: 'agent-pricing', label: '代理定价', children: agentPricingTab },
       ]} />
     </Card>
   );

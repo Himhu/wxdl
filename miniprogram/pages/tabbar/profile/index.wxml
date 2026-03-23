@@ -8,8 +8,13 @@
       </view>
       <view class="user-info">
         <view class="username">{{ displayNickname }}</view>
-        <view class="user-role-tag {{ roleTagClass }}">
-          {{ roleText }}
+        <view class="user-tags">
+          <view class="user-role-tag {{ roleTagClass }}">
+            {{ roleText }}
+          </view>
+          <view class="agent-level-tag {{ agentLevel == 2 ? 'level-vip' : 'level-normal' }}" wx:if="{{ isAgent }}">
+            {{ agentLevel == 2 ? 'VIP代理' : '普通代理' }}
+          </view>
         </view>
       </view>
     </view>

@@ -9,6 +9,8 @@ import (
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/internal/utils"
+
+	"github.com/shopspring/decimal"
 )
 
 // WeChatSettingView 微信配置视图
@@ -40,6 +42,9 @@ type SystemSettingService interface {
 	GetRedemptionSettings(ctx context.Context) (*RedemptionSettingView, error)
 	UpdateRedemptionSettings(ctx context.Context, input UpdateRedemptionSettingsInput) (*RedemptionSettingView, error)
 	GetRedemptionConfig(ctx context.Context) (*RedemptionConfig, error)
+	GetAgentPricingSettings(ctx context.Context) (*AgentPricingSettingView, error)
+	UpdateAgentPricingSettings(ctx context.Context, input UpdateAgentPricingSettingsInput) (*AgentPricingSettingView, error)
+	GetAgentCardUnitPrice(ctx context.Context, level int) (decimal.Decimal, error)
 }
 
 type systemSettingService struct {
@@ -531,3 +536,107 @@ func (s *systemSettingService) GetRedemptionConfig(ctx context.Context) (*Redemp
 	return cfg, nil
 }
 
+// AgentPricingSettingView 代理定价配置视图
+type AgentPricingSettingView struct {
+	Level1Price string    `json:"level1Price"`
+	Level2Price string    `json:"level2Price"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// UpdateAgentPricingSettingsInput 更新代理定价配置输入
+type UpdateAgentPricingSettingsInput struct {
+	Level1Price string
+	Level2Price string
+	ChangeNote  string
+	ChangedBy   uint
+	ChangedIP   string
+}
+
+func (s *systemSettingService) GetAgentPricingSettings(ctx context.Context) (*AgentPricingSettingView, error) {
+	settings, err := s.repo.ListByCategory(ctx, "agent_pricing")
+	if err != nil {
+		return nil, err
+	}
+
+	view := &AgentPricingSettingView{
+		Level1Price: "1.00",
+		Level2Price: "1.00",
+	}
+	for _, setting := range settings {
+		if setting.ValuePlain == nil {
+			continue
+		}
+		switch setting.SettingKey {
+		case "level_1_price":
+			view.Level1Price = *setting.ValuePlain
+		case "level_2_price":
+			view.Level2Price = *setting.ValuePlain
+		}
+		if !setting.UpdatedAt.IsZero() {
+			view.UpdatedAt = setting.UpdatedAt
+		}
+	}
+	return view, nil
+}
+
+func (s *systemSettingService) UpdateAgentPricingSettings(ctx context.Context, input UpdateAgentPricingSettingsInput) (*AgentPricingSettingView, error) {
+	level1Price, err := decimal.NewFromString(input.Level1Price)
+	if err != nil || !level1Price.GreaterThan(decimal.Zero) || level1Price.GreaterThan(decimal.NewFromInt(1)) {
+		return nil, fmt.Errorf("普通代理折扣率必须在 0.01~1.00 之间")
+	}
+	level2Price, err := decimal.NewFromString(input.Level2Price)
+	if err != nil || !level2Price.GreaterThan(decimal.Zero) || level2Price.GreaterThan(decimal.NewFromInt(1)) {
+		return nil, fmt.Errorf("VIP代理折扣率必须在 0.01~1.00 之间")
+	}
+
+	now := time.Now()
+	fields := []struct{ key, value, display string }{
+		{"level_1_price", level1Price.StringFixed(2), "普通代理折扣率"},
+		{"level_2_price", level2Price.StringFixed(2), "VIP代理折扣率"},
+	}
+
+	if err := s.txManager.WithinTx(ctx, func(repos repository.TxRepositories) error {
+		repo := repos.SystemSetting()
+		for _, f := range fields {
+			v := f.value
+			setting := &model.SystemSetting{
+				Category: "agent_pricing", SettingKey: f.key,
+				DisplayName: f.display, ValueType: "string",
+				IsSecret: false, ValuePlain: &v,
+				Source: "database", Status: 1, Description: f.display,
+				UpdatedBy: &input.ChangedBy, PublishedAt: &now,
+			}
+			revision := &model.SystemSettingRevision{
+				Category: "agent_pricing", SettingKey: f.key, Operation: "update",
+				NewValueMasked: &v, ChangeNote: input.ChangeNote,
+				ChangedBy: &input.ChangedBy, ChangedIP: input.ChangedIP,
+			}
+			if err := upsertSystemSettingWithRevision(ctx, repo, setting, revision); err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("update agent pricing settings: %w", err)
+	}
+
+	return s.GetAgentPricingSettings(ctx)
+}
+
+func (s *systemSettingService) GetAgentCardUnitPrice(ctx context.Context, level int) (decimal.Decimal, error) {
+	view, err := s.GetAgentPricingSettings(ctx)
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	priceStr := view.Level1Price
+	if level == 2 {
+		priceStr = view.Level2Price
+	}
+
+	price, err := decimal.NewFromString(priceStr)
+	if err != nil || !price.GreaterThan(decimal.Zero) {
+		return decimal.Zero, fmt.Errorf("代理等级 %d 的价格配置无效", level)
+	}
+	return price, nil
+}

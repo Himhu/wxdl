@@ -137,6 +137,7 @@ const (
 	InviterUserID *uint64 `json:"inviterUserId"`
 	LastLoginAt   string  `json:"lastLoginAt"`
 	AgentBalance  string  `json:"agentBalance,omitempty"`
+	AgentLevel    int     `json:"agentLevel,omitempty"`
 }
 
 // ToResponse 转换为前端响应

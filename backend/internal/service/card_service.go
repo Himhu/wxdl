@@ -18,8 +18,6 @@ const (
 	maxCardPageSize     = 100
 )
 
-var cardPointCost = decimal.RequireFromString("1.00")
-
 type CardListInput struct {
 	AgentID  uint
 	Page     int
@@ -166,7 +164,7 @@ func (s *cardService) Destroy(ctx context.Context, agentID, cardID uint) (*Destr
 
 		refundAmount := card.Cost
 		if refundAmount.IsZero() {
-			refundAmount = cardPointCost
+			refundAmount = decimal.NewFromInt(int64(card.Quota))
 		}
 		balanceBefore := agent.Balance
 		balanceAfter := balanceBefore.Add(refundAmount)

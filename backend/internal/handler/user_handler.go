@@ -113,6 +113,7 @@ func (h *UserHandler) Profile(c *gin.Context) {
 		if err == nil && agent != nil {
 			userInfo.Role = model.UserRoleAgent
 			userInfo.AgentBalance = agent.Balance.StringFixed(2)
+			userInfo.AgentLevel = agent.Level
 		}
 	}
 
@@ -438,6 +439,7 @@ func (h *UserHandler) LegacyBalance(c *gin.Context) {
 		"legacyUsername":    result.LegacyUsername,
 		"balance":           result.Balance,
 		"role":              result.Role,
+		"agentLevelId":      result.AgentLevelID,
 		"agentType":         result.AgentType,
 		"svipRemainingDays": result.SVIPRemainingDays,
 	})

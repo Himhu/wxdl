@@ -68,4 +68,16 @@ export const systemSettingApi = {
 
   updateRedemptionSettings: (data: { baseUrl: string; adminAccessToken: string; adminUserId: string; priceRules?: string; changeNote?: string }) =>
     http.put<any, RedemptionSettings>('/api/v1/admin/system-settings/redemption', data),
+
+  getAgentPricingSettings: () =>
+    http.get<any, AgentPricingSettings>('/api/v1/admin/system-settings/agent-pricing'),
+
+  updateAgentPricingSettings: (data: { level1Price: string; level2Price: string; changeNote?: string }) =>
+    http.put<any, AgentPricingSettings>('/api/v1/admin/system-settings/agent-pricing', data),
 };
+
+export interface AgentPricingSettings {
+  level1Price: string;
+  level2Price: string;
+  updatedAt?: string;
+}

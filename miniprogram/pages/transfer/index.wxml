@@ -24,14 +24,9 @@
     <view class="result-divider"></view>
     <view class="result-row">
       <text class="result-label">代理身份</text>
-      <text class="result-value result-agent-type {{ result.svipRemainingDays > 0 ? 'vip' : '' }}">{{ result.agentType }}</text>
+      <text class="result-value result-agent-type {{ result.agentLevelId == 2 ? 'vip' : '' }}">{{ result.agentType }}</text>
     </view>
     <view class="result-divider"></view>
-    <view class="result-row" wx:if="{{ result.svipRemainingDays > 0 }}">
-      <text class="result-label">VIP剩余</text>
-      <text class="result-value">{{ result.svipRemainingDays }} 天</text>
-    </view>
-    <view class="result-divider" wx:if="{{ result.svipRemainingDays > 0 }}"></view>
     <view class="result-row">
       <text class="result-label">账户余额</text>
       <text class="result-value result-balance">¥ {{ result.balance }}</text>

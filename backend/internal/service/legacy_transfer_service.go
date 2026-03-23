@@ -89,12 +89,16 @@ func (s *LegacyTransferService) Confirm(ctx context.Context, input LegacyTransfe
 		if err != nil {
 			return nil, err
 		}
+		agentLevel := legacyInfo.AgentLevelID
+		if agentLevel != 1 && agentLevel != 2 {
+			agentLevel = 1
+		}
 		createAgent := &model.Agent{
 			Username:      username,
 			Password:      hashedPassword,
 			RealName:      user.Nickname,
 			Phone:         user.Mobile,
-			Level:         1,
+			Level:         agentLevel,
 			Status:        model.AgentStatusActive,
 			Balance:       decimal.Zero,
 			WechatOpenID:  user.OpenID,
@@ -145,6 +149,12 @@ func (s *LegacyTransferService) Confirm(ctx context.Context, input LegacyTransfe
 		newBalance = balanceBefore.Add(amount)
 		if err := repos.Agent().UpdateBalance(ctx, lockedAgent.ID, newBalance); err != nil {
 			return err
+		}
+
+		if lockedAgent.Level != legacyInfo.AgentLevelID && (legacyInfo.AgentLevelID == 1 || legacyInfo.AgentLevelID == 2) {
+			if err := repos.Agent().UpdateLevel(ctx, lockedAgent.ID, legacyInfo.AgentLevelID); err != nil {
+				return err
+			}
 		}
 
 		record := &model.PointsRecord{
